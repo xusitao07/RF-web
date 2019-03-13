@@ -1,0 +1,117 @@
+*** Settings ***
+Library           Selenium2Library
+Library           mylibaryes/tool/Httpself.py
+
+*** Keywords ***
+登录同金社1
+    [Arguments]    ${url}    ${browser}    ${username}    ${password}    ${element}    ${element2}
+    ...    ${expected}
+    [Documentation]    ${url} 登录地址
+    ...
+    ...
+    ...
+    ...    ${browser} 浏览器类型
+    ...
+    ...
+    ...
+    ...
+    ...    ${username}登录用户名
+    ...
+    ...
+    ...
+    ...
+    ...    ${password}登录密码
+    ...
+    ...
+    ...
+    ...    ${element} 登录按钮定位元素
+    ...
+    ...
+    ...
+    ...    ${element2} 校验登录是否成功元素
+    ...
+    ...
+    ...
+    ...    ${expected} 校验登录是否成功元素文本期望值
+    Open Browser    ${url}    ${browser}
+    Maximize Browser Window
+    sleep    2
+    Input Text    id=aphone    ${username}
+    Input Text    id=apwd    ${password}
+    Click Button    ${element}
+    sleep    2
+    ${text}    Get Text    ${element2}
+    should contain    ${text}    ${expected}
+
+获取元素文本并做断言校验
+    [Arguments]    ${element}    ${expected}
+    ${text}    Get Text    ${element}
+    should contain    ${text}    ${expected}
+
+点击登录按钮
+    [Arguments]    ${element}
+    Click Button    ${element}
+
+Assert
+    [Arguments]    ${ActualElement}    ${ExpectValue}
+    [Documentation]    ${ActualElement} 实际的元素
+    ...
+    ...    ${ExpectValue}期望值
+    ${text}    Get Text    ${ActualElement}
+    log    ${text}
+    should contain    ${text}    ${ExpectValue}
+
+登录
+    [Arguments]    ${username}    ${password}
+    [Documentation]    ${username} \ \ 用户名
+    ...
+    ...    ${password} \ \ 密码
+    Input Text    id=aphone    ${username}
+    Input Text    id=apwd    ${password}
+
+获取元素文本并做断言校验
+    [Arguments]    ${element}    ${expected}
+    ${text}    Get Text    ${element}
+    should contain    ${text}    ${expected}
+
+窗口最大化
+    [Documentation]    放大窗口
+    Maximize Browser Window
+
+打开浏览器并输入url
+    [Arguments]    ${url}    ${browser}
+    [Documentation]    ${url} \ \ 输入URL
+    ...    ${browser} 输入浏览器类型
+    Open Browser    ${url}    ${browser}
+
+异常情况获取元素并做断言校验
+    [Arguments]    ${element}    ${expected}
+    ${text}    Get Text    ${element}
+    should not contain    ${text}    ${expected}
+    log    ${text}
+
+点击登录按钮
+    [Arguments]    ${element}
+    Click Button    ${element}
+
+关闭浏览器
+    Close Browser
+
+后台创建产品
+    [Arguments]    ${CreatrUrl}    ${CreatePostDate}
+    [Documentation]    自动创建产品
+    CreatProduct    ${CreatrUrl}    ${CreatePostDate}
+
+校验产品发行是否成功
+    [Arguments]    ${element}    ${expected}
+    [Documentation]    ${element} \ 元素
+    ...
+    ...
+    ...    ${expected}期望值
+    Comment    点击产品中心进入产品页面
+    ${text}    Get Text    ${element}
+    should contain    ${text}    ${expected}
+
+后台审核产品
+    [Arguments]    ${ReviewedUrl}    ${ReviewedPostDate}
+    examine    ${ReviewedUrl}    ${ReviewedPostDate }

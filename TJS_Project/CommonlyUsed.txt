@@ -1,0 +1,620 @@
+*** Settings ***
+Library           Selenium2Library
+Library           DatabaseLibrary
+Library           mylibaryes/tool/Httpself.py
+
+*** Test Cases ***
+正常登录同金社
+    打开浏览器并输入url    http://www.tjs.com/login    ff
+    窗口最大化
+    Set Selenium Implicit Wait    2
+    登录    18770027573    aa111111
+    点击登录按钮    Xpath=//button[@class="btn btn-blue full login-c"]
+    sleep    2
+    获取元素文本并做断言校验    //div[@class='header']/div[2]/div/a[1]     首页
+    关闭浏览器
+    sleep    8
+
+密码异常登入
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    打开浏览器并输入url    ${key["url"]}    ${key["browser"]}
+    窗口最大化
+    Set Selenium Implicit Wait    2
+    Comment    密码输入异常循环验证
+    @{keyall}    set variable    ${key["password1"]}    ${key["password1"]}    ${key["password3"]}    ${key["password4"]}
+    : FOR    ${i}    IN    @{keyall}
+    \    log    ${i}
+    \    登录    ${key["username"]}    ${i}
+    \    点击登录按钮    ${key["element1"]}
+    \    sleep    2
+    \    异常情况获取元素并做断言校验    ${key["element2"]}    ${key["expected"]}
+    \    sleep    3
+    Close Browser
+    sleep    8
+
+账号异常登录
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    打开浏览器并输入url    ${key["url"]}    ${key["browser"]}
+    窗口最大化
+    sleep    2
+    @{keyall}    set variable    ${key["username1"]}    ${key["username2"]}    ${key["username3"]}    ${key["username4"]}
+    Comment    账号输入异常循环验证
+    : FOR    ${i}    IN    @{keyall}
+    \    log    ${i}
+    \    登录    ${i}    ${key["password"]}
+    \    点击登录按钮    ${key["element1"]}
+    \    sleep    2
+    \    异常情况获取元素并做断言校验    ${key["element2"]}    ${key["expected"]}
+    \    sleep    3
+    Close Browser
+    sleep    8
+
+调试
+    Comment    ${key}    set variable    12.0    2aa22    22222
+    Comment    :FOR    ${i}    IN RANGE    3
+    Comment    \    ${a}    len    ${key[${i}]}
+    Comment    \    log    ${a}
+    Comment    log    ${key[0]}
+    Open Browser    http://zjmax.net/    ff
+
+购买募集产品流程
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    后台创建产品    ${create_product_args["CreatrUrl"]}    ${CreatePostDate}
+    sleep    3
+    Import Variables    ${CURDIR}\\selenium_diy2.py
+    后台审核产品    ${Reviewed["ReviewedUrl"]}    ${ReviewedPostDate}
+    sleep    3
+    登录同金社
+    sleep    2
+    click element    xpath=html/body/div[1]/div[2]/div/a[2]
+    校验产品发行是否成功    Xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[1]/a    autotesting
+    购买起投金额产品
+    sleep    2
+    删除新建的产品
+    关闭浏览器
+    sleep    8
+
+充值
+    Set Selenium Implicit Wait    3
+    登录同金社
+    Set Selenium Implicit Wait    3
+    Click Element    xpath=html/body/div[1]/div[2]/div/a[6]
+    Click Button    xpath=html/body/div[2]/div[2]/div[1]/ul/li[4]/button[1]
+    Set Selenium Implicit Wait    2
+    ${text}    Get Text    xpath=html/body/div[2]/div[2]/div[1]/p
+    should contain    ${text}    充值
+    Input Text    xpath=html/body/div[2]/div[2]/div[1]/div/div[3]/div[2]/input    10000000
+    Click Button    id=recharge_btn
+    Set Selenium Implicit Wait    2
+    ${text}    Get Text    xpath=html/body/div[2]/div/span
+    should contain    ${text}    充值成功，资金一般5分钟内到账，最迟24小时内到账，到时请至“个人中心-资金明细”查看流水记录
+    关闭浏览器
+    sleep    8
+
+提现
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    sleep    3
+    登录同金社
+    sleep    2
+    Comment    提前获取金额可用余额以便后面校验
+    Click Element    xpath=html/body/div[1]/div[2]/div/a[6]
+    ${BeforAvailableBalance}    Get Text    xpath=html/body/div[2]/div[2]/div[1]/ul/li[3]/p[1]
+    Click Button    xpath=html/body/div[2]/div[2]/div[1]/ul/li[4]/button[2]
+    Set Selenium Implicit Wait    2
+    ${text}    Get Text    xpath=html/body/div[2]/div[2]/div/p
+    should contain    ${text}    提现
+    Input Text    xpath=.//*[@id='payment_form']/div[2]/div[2]/input    100
+    Click Button    id=to_withdraw_btn
+    Set Selenium Implicit Wait    2
+    ${text}    Get Text    xpath=html/body/div[1]/div/a/span
+    should contain    ${text}    晋商银行资金存管
+    ${key}    Set Variable    ${TiXianArg["passward2"]}    ${TiXianArg["passward1"]}    ${TiXianArg["passward3"]}
+    : FOR    ${i}    IN RANGE    3
+    \    ${a}    len    ${key[${i}]}
+    \    log    ${key[${i}]}
+    \    Run Keyword If    ${a}<=7 | ${a}>=19    校验密码小于8或大于18    ${key[${i}]}
+    \    ...    ELSE IF    7<=${a}| ${a}<=18    校验密码在7到19位数    ${key[${i}]}
+    \    ...    ELSE    log    ok
+    Input Text    id=password    ${TiXianArg["passward4"]}
+    Click Button    id=acceptBtn
+    sleep    3
+    ${text}    Get Text    xpath=html/body/div[2]/div/span
+    log    ${text}
+    should contain    ${text}    提现成功,资金将于1-3个工作日到账，周末节假日顺延，详情请至“个人中心-资金明细”查看
+    Comment    点击个人中心获取提款后的余额
+    Click Element    xpath=html/body/div[1]/div[2]/div/a[6]
+    Comment    校验金额
+    ${Befor}    RE    ${BeforAvailableBalance}
+    sleep    2
+    ${AfterAvailableBalance}    Get Text    xpath=html/body/div[2]/div[2]/div[1]/ul/li[3]/p[1]
+    ${After}    RE    ${AfterAvailableBalance}
+    ${var}    Evaluate    ${Befor}-${After}
+    ${except}    期望值转整型    102.0
+    should be equal    ${var}    ${except}
+    关闭浏览器
+    sleep    8
+
+注册登录
+    Comment    打开注册账号页面
+    Comment    注册账户
+    Comment    实名认证
+
+募集产品尾包转让
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    后台创建产品    ${create_product_args["CreatrUrl"]}    ${CreatePostDate2}
+    sleep    3
+    Import Variables    ${CURDIR}\\selenium_diy2.py
+    后台审核产品    ${Reviewed["ReviewedUrl"]}    ${ReviewedPostDate}
+    sleep    3
+    登录同金社
+    sleep    2
+    clickele ment    xpath=html/body/div[1]/div[2]/div/a[2]
+    校验产品发行是否成功    Xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[1]/a    autotesting
+    购买产品让该产品产生尾包
+    comment    回到产品中心
+    Click element    xpath=html/body/div[1]/div[2]/div/a[2]
+    sleep    2
+    购买尾包
+    sleep    2
+    Import Variables    ${CURDIR}\\selenium_diy3.py
+    产品成标    ${establishUrl["establishUrl"]}    ${establishPostDate}
+    sleep    3
+    转让尾包产品
+    删除新建的产品
+    关闭浏览器
+    sleep    8
+
+募集产品转让
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    后台创建产品    ${create_product_args["CreatrUrl"]}    ${CreatePostDate}
+    sleep    3
+    Import Variables    ${CURDIR}\\selenium_diy2.py
+    后台审核产品    ${Reviewed["ReviewedUrl"]}    ${ReviewedPostDate}
+    sleep    3
+    登录同金社
+    sleep    3
+    click element    Xpath=html/body/div[1]/div[2]/div/a[2]
+    校验产品发行是否成功    Xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[1]/a    autotesting
+    sleep    3
+    购买产品一次买完
+    Import Variables    ${CURDIR}\\selenium_diy3.py
+    产品成标    ${establishUrl["establishUrl"]}    ${establishPostDate }
+    sleep    3
+    产品转让
+    删除新建的产品
+    关闭浏览器
+    sleep    8
+
+普通产品购买
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    后台创建产品    ${create_product_args["CreatrUrl"]}    ${CreatePostDate}
+    Import Variables    ${CURDIR}\\selenium_diy2.py
+    后台审核产品    ${Reviewed["ReviewedUrl"]}    ${ReviewedPostDate}
+
+普通产品转让
+
+购买转让产品
+
+*** Keywords ***
+登录
+    [Arguments]    ${username}    ${password}
+    [Documentation]    ${username} \ \ 用户名
+    ...
+    ...    ${password} \ \ 密码
+    Input Text    name=phone    ${username}
+    Input Text    name=password    ${password}
+
+获取元素文本并做断言校验
+    [Arguments]    ${element}    ${expected}
+    ${text}    Get Text    ${element}
+    should contain    ${text}    ${expected}
+
+窗口最大化
+    [Documentation]    放大窗口
+    Maximize Browser Window
+
+打开浏览器并输入url
+    [Arguments]    ${url}    ${browser}
+    [Documentation]    ${url} \ \ 输入URL
+    ...    ${browser} 输入浏览器类型
+    Open Browser    ${url}    ${browser}
+
+异常情况获取元素并做断言校验
+    [Arguments]    ${element}    ${expected}
+    ${text}    Get Text    ${element}
+    should not contain    ${text}    ${expected}
+    log    ${text}
+
+点击登录按钮
+    [Arguments]    ${element}
+    Click Button    ${element}
+
+关闭浏览器
+    click element    xpath=html/body/div[1]/div[1]/div/div[2]/a[3]
+    Close Browser
+
+后台创建产品
+    [Arguments]    ${CreatrUrl}    ${CreatePostDate}
+    [Documentation]    自动创建产品
+    CreatProduct    ${CreatrUrl}    ${CreatePostDate}
+
+校验产品发行是否成功
+    [Arguments]    ${element}    ${expected}
+    [Documentation]    ${element} \ 元素
+    ...
+    ...
+    ...    ${expected}期望值
+    Comment    点击产品中心进入产品页面
+    ${text}    Get Text    ${element}
+    should contain    ${text}    ${expected}
+
+登录同金社
+    打开浏览器并输入url    http://www.tjs.com    ff
+    窗口最大化
+    sleep    2
+    登录    18770052222    aa111111
+    点击登录按钮    name=abtn
+    sleep    3
+    获取元素文本并做断言校验    Xpath=html/body/div[1]/div[2]/div/a[1]    首页
+
+购买起投金额产品
+    Click Button    Xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[2]/a/button
+    sleep    2
+    Comment    Click button    Xpath=.//*[@id='box_real_btn']/button
+    Comment    sleep    3
+    Comment    校验跳转页面是否正确
+    ${text}    Get Text    Xpath=.//*[@id='earnings']/span[1]
+    should contain    ${text}    预期收益
+    Comment    购买起投金额产品
+    Click Button    Xpath=.//*[@id='buy-form']/p[3]/button
+    sleep    2
+    comment    阅读协议
+    Click button    Xpath=html/body/div[2]/div/div[2]/div/div[3]/button
+    sleep    3
+    ${text}    Get Text    Xpath=html/body/div[2]/div/div[1]/div[1]
+    should contain    ${text}    订单信息
+    Click button    name=agreement[]
+    Click button    id=btn-buy
+    sleep    5
+    ${text}    Get Text    Xpath=html/body/div[2]/div/div[5]/div[1]/span
+    should contain    ${text}    账户交易密码：
+    Input Text    id=password    aa111111
+    Click Button    id=acceptBtn
+    sleep    8
+    Comment    在资金明细中校验金额扣除记录是否正确
+    Click Element    Xpath=html/body/div[2]/div[1]/dl/dd[3]/a
+    ${text}    Get Text    Xpath=html/body/div[2]/div[2]/div[1]/div[1]
+    should contain    ${text}    资金明细
+    ${text}    Get Text    Xpath=html/body/div[2]/div[2]/div[2]/div[3]/table/tbody/tr[1]/td[2]
+    should contain    ${text}    -100.00
+
+后台审核产品
+    [Arguments]    ${ReviewedUrl}    ${ReviewedPostDate}
+    examine    ${ReviewedUrl}    ${ReviewedPostDate }
+
+删除新建的产品
+    Comment    创建的产品后台写死了为autotesting
+    DelProduct
+
+校验密码小于8或大于18
+    [Arguments]    ${keyall}
+    Input Text    id=password    ${keyall}
+    Click Button    id=acceptBtn
+    sleep    3
+    ${text}    Confirm Action
+    Should Contain    ${text}    请输入8-18位以数字和大小写字母组合
+    sleep    2
+    Comment    截屏点击确定退出弹窗
+    Comment    Capture Page Screenshot
+    Comment    Choose Ok On Next Confirmation
+    Comment    sleep    2
+
+校验密码在7到19位数
+    [Arguments]    ${keyall}
+    Input Text    id=password    ${keyall}
+    Click Button    id=acceptBtn
+    sleep    3
+    ${text}    Get Text    xpath=.//div[5]/div/div[2]
+    log    ${text}
+    should contain    ${text}    交易密码错误
+    sleep    2
+    Click Element    xpath=.//div[5]/div/div[3]/a
+    sleep    2
+
+校验入参1
+    [Arguments]    ${arg}
+    ${var}    len    ${arg}
+    [Return]    ${var}
+
+校验参数2
+    [Arguments]    ${arg}
+    [Documentation]    计算输入参数的位数 \ 作为判断条件
+    ${var}    len2    ${arg}
+    [Return]    ${var}
+
+期望值转整型
+    [Arguments]    ${arg}
+    ${a}    set variable    ${arg}
+    ${b}    set variable    0
+    ${c}    Evaluate    ${a}+${b}
+    [Return]    ${c}
+
+打开注册账号页面
+    打开浏览器并输入url    http://www.tjs.com    ff
+    窗口最大化
+    sleep    2
+    Click Element    xpath=.//*[@id='index-login-model']/div/div/form/p[3]/a
+    sleep    2
+    Assert    xpath=html/body/div[1]/div/a/span    注册
+
+Assert
+    [Arguments]    ${ActualElement}    ${ExpectValue}
+    [Documentation]    ${ActualElement} 实际的元素
+    ...
+    ...    ${ExpectValue}期望值
+    ${text}    Get Text    ${ActualElement}
+    log    ${text}
+    should contain    ${text}    ${ExpectValue}
+
+注册账户
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    ${number}    生成手机号码
+    InputText    name=phone    ${number}
+    log    ${number}
+    ${VerificationCode}    获取图片验证码    xpath=html/body/div[2]/div/div/form/div[4]/div/img
+    sleep    2
+    InputText    name=i_verify    ${VerificationCode}
+    Comment    获取注册验证码
+    ClickButton    xpath=html/body/div[2]/div/div/form/div[5]/button
+    ${code}    数据库查询验证码    ${SelectSql["Sql"]}
+    InputText    name=m_verify    ${code}
+    InputText    name=password    ${SelectSql["Passward"]}
+    Clickbutton    xpath=html/body/div[2]/div/div/form/button
+    sleep    2
+    Assert    xpath=html/body/div[1]/div/a/span    开通晋商银行资金存管
+
+获取图片验证码
+    [Arguments]    ${CodeElement}
+    [Documentation]    ${CodeElement} 验证码图片定位元素
+    ...
+    ...
+    ...    ${VerificationCode}返回验证码
+    Capture Page Screenshot    D:/test_image/img.png
+    Comment    获取元素的X坐标
+    ${X}    Get Horizontal Position    ${CodeElement}
+    Comment    获取元素的Y坐标
+    ${Y}    Get Vertical Position    ${CodeElement}
+    Comment    或取截图中的验证码
+    ${VerificationCode}    GetVerificationCode    ${X}    ${Y}    100    38
+    [Return]    ${VerificationCode}
+
+生成手机号码
+    [Documentation]    ${number} 随机生成的号码
+    ${number}    number
+    [Return]    ${number}
+
+数据库查询验证码
+    [Arguments]    ${sql}
+    ${code}    do_dql_code    ${sql}
+    [Return]    ${code}
+
+实名认证
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    InPutText    name=true_name    ${SelectSql["name"]}
+    InPutText    name=idcard    ${SelectSql["id_card"]}
+    InPutText    name=pre_mobile    ${SelectSql["pre_moble"]}
+    InPutText    name=bank_card    ${SelectSql["bank_card"]}
+    ClickButton    xpath=html/body/div[2]/div[2]/div[1]/form/div[7]/button
+    Comment    等待元素出现
+    Wait Until Page Contains Element    name=code    3    error
+    InputText    name=code    111111
+    ClickButton    xpath=html/body/div[2]/div/div[3]/div[5]/button
+    ClickButton    id=acceptBtn
+    Wait Until Page Contains Element    xpath=html/body/div[2]/div/div[3]/div[1]/input    3    error
+    设置密码异常情况校验
+    InputText    xpath=html/body/div[2]/div/div[3]/div[1]/input    aa111111
+    InputText    xpath=html/body/div[2]/div/div[3]/div[1]/input    aa111111
+    ClickButton    id=acceptBtn
+    Wait Until Page Contains Element    xpath=html/body/div[2]/div/span    2    e
+
+设置密码异常情况校验
+    ${a}    set variable    aa11111
+    ${b}    set variable    aa111111
+    ${c}    set variable    aa111111111
+    runkeywordif    ${a}!=${b}    输入参数ab校验
+    ...    ELSE IF    ${c}!=${b}    输入参数cb校验
+    ...    ELSE    log
+
+输入参数ab校验
+    [Arguments]    ${a}    ${b}
+    InputText    xpath=html/body/div[2]/div/div[3]/div[1]/input    ${a}
+    InputText    xpath=html/body/div[2]/div/div[3]/div[1]/input    ${b}
+    ClickButton    id=acceptBtn
+    Assert    xpath=.//div[3]/div/div[2]    请输入8-18位以数字和大小写字母组合
+    ClickButton    xpath=.//div[3]/div/div[3]/a
+
+输入参数cb校验
+    InputText    xpath=html/body/div[2]/div/div[3]/div[1]/input    ${c}
+    InputText    xpath=html/body/div[2]/div/div[3]/div[1]/input    ${b}
+    ClickButton    id=acceptBtn
+    Assert    xpath=.//div[3]/div/div[2]    两次输入的密码不同
+    ClickButton    xpath=.//div[3]/div/div[3]/a
+
+购买产品一次买完
+    Click button    Xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[2]/a/button
+    sleep    2
+    Comment    comment    阅读协议
+    Comment    Click button    Xpath=.//*[@id='box_real_btn']/button
+    Comment    sleep    3
+    Comment    校验跳转页面是否正确
+    ${text1}    Get Text    Xpath=.//*[@id='earnings']/span[1]
+    should contain    ${text1}    预期收益
+    Comment    购买全部金额
+    Input Text    Xpath=.//*[@id='buy-form']/div/input[2]    500000
+    sleep    3
+    Comment    comment    校验预期收益
+    Comment    ${text2}    Get Text    xpath=.//*[@id='earnings']/span[2]
+    Comment    should contain    ${text2}    45000
+    Click Button    Xpath=.//*[@id='buy-form']/p[3]/button
+    sleep    2
+    comment    阅读协议
+    Click button    Xpath=html/body/div[2]/div/div[2]/div/div[3]/button
+    sleep    3
+    ${text}    Get Text    Xpath=html/body/div[2]/div/div[1]/div[1]
+    should contain    ${text}    订单信息
+    Click button    name=agreement[]
+    Click button    id=btn-buy
+    sleep    3
+    ${text}    Get Text    Xpath=html/body/div[2]/div/div[5]/div[1]/span
+    should contain    ${text}    账户交易密码：
+    Input Text    id=password    aa111111
+    Click Button    id=acceptBtn
+    sleep    8
+    Comment    在资金明细中校验金额扣除记录是否正确
+    Click Element    xpath=html/body/div[1]/div[2]/div/a[6]
+    Click Element    Xpath=html/body/div[2]/div[1]/dl/dd[3]/a
+    ${text}    Get Text    Xpath=html/body/div[2]/div[2]/div[1]/div[1]
+    should contain    ${text}    资金明细
+    ${text}    Get Text    Xpath=html/body/div[2]/div[2]/div[2]/div[3]/table/tbody/tr[1]/td[2]
+    should contain    ${text}    -500,000.00
+    sleep    3
+
+产品成标
+    [Arguments]    ${establishUrl}    ${establishDate}
+    examine    ${establishUrl}    ${establishDate}
+    sleep    2
+
+产品转让
+    comment    进入个人中心资产管理页面
+    Click element    Xpath=html/body/div[1]/div[2]/div/a[6]
+    Click element    Xpath=html/body/div[2]/div[1]/dl/dd[2]/a
+    Click element    Xpath=html/body/div[2]/div[2]/div[2]/div[1]/a[1]
+    Click element    Xpath=html/body/div[2]/div[2]/div[2]/div[2]/table/tbody/tr[1]/td[5]/a
+    sleep    2
+    comment    转让
+    Click button    Xpath=html/body/div[2]/div[2]/div[1]/div/div[2]/div/button
+    sleep    1
+    Input Text    xpath=html/body/div[2]/div/div[2]/div[1]/table/tbody/tr[2]/td[1]/div/input    500000
+    Click element    xpath=html/body/div[2]/div/div[1]/p
+    sleep    2
+    Click button    id=f-push-product
+    sleep    3
+    Click button    id=send_code
+    sleep    3
+    ${code}    获取验证码
+    log    ${code}
+    Input text    id=code    ${code}
+    Input text    id=password    aa111111
+    Click button    id=f-push
+    comment    检验转让是否成功
+    sleep    3
+    Click element    Xpath=html/body/div[1]/div[2]/div/a[4]
+    Assert    Xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[1]/a    autotesting
+
+获取验证码
+    ${code}    do_sql_code    select code from \ n_valid ORDER BY add_time \ DESC \ limit \ 1    num_sms
+    [Return]    ${code}
+
+购买产品让该产品产生尾包
+    Click Button    Xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[2]/a/button
+    sleep    2
+    Comment    comment    阅读协议
+    Comment    Click button    Xpath=.//*[@id='box_real_btn']/button
+    Comment    sleep    3
+    Comment    校验跳转页面是否正确
+    ${text1}    Get Text    Xpath=.//*[@id='earnings']/span[1]
+    should contain    ${text1}    预期收益
+    Comment    购买金额
+    Input Text    Xpath=.//*[@id='buy-form']/div/input[2]    500000
+    sleep    1
+    Comment    comment    校验预期收益
+    Comment    ${text2}    Get Text    .//*[@id='earnings']/span[2]
+    Comment    Run Keyword And Continue On Failure    should contain    ${text2}    45000
+    Comment    log    查看该断言
+    Click Button    Xpath=.//*[@id='buy-form']/p[3]/button
+    sleep    2
+    comment    阅读协议
+    Click button    Xpath=html/body/div[2]/div/div[2]/div/div[3]/button
+    sleep    3
+    ${text}    Get Text    Xpath=html/body/div[2]/div/div[1]/div[1]
+    should contain    ${text}    订单信息
+    Click button    name=agreement[]
+    Click button    id=btn-buy
+    sleep    3
+    ${text}    Get Text    Xpath=html/body/div[2]/div/div[5]/div[1]/span
+    should contain    ${text}    账户交易密码：
+    Input Text    id=password    aa111111
+    Click Button    id=acceptBtn
+    sleep    8
+    Comment    在资金明细中校验金额扣除记录是否正确
+    Click Element    xpath=html/body/div[1]/div[2]/div/a[6]
+    Click Element    Xpath=html/body/div[2]/div[1]/dl/dd[3]/a
+    ${text}    Get Text    Xpath=html/body/div[2]/div[2]/div[1]/div[1]
+    should contain    ${text}    资金明细
+    ${text}    Get Text    Xpath=html/body/div[2]/div[2]/div[2]/div[3]/table/tbody/tr[1]/td[2]
+    should contain    ${text}    -500,000.00
+    sleep    3
+
+购买尾包
+    Click Button    Xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[2]/a/button
+    sleep    2
+    Comment    comment    阅读协议
+    Comment    Click button    Xpath=.//*[@id='box_real_btn']/button
+    Comment    sleep    2
+    Comment    校验跳转页面是否正确
+    ${text1}    Get Text    Xpath=.//*[@id='earnings']/span[1]
+    should contain    ${text1}    预期收益
+    Comment    购买尾包金额
+    Comment    Input Text    Xpath=.//*[@id='buy-form']/div/input[2]    60000
+    sleep    1
+    Comment    comment    校验预期收益
+    Comment    ${text2}    Get Text    xpath=.//*[@id='earnings']/span[2]
+    Comment    should contain    ${text2}    5400
+    Click Button    Xpath=.//*[@id='buy-form']/p[3]/button
+    sleep    2
+    comment    阅读协议
+    Click button    Xpath=html/body/div[2]/div/div[2]/div/div[3]/button
+    sleep    3
+    ${text}    Get Text    Xpath=html/body/div[2]/div/div[1]/div[1]
+    should contain    ${text}    订单信息
+    Click button    name=agreement[]
+    Click button    id=btn-buy
+    sleep    3
+    ${text}    Get Text    html/body/div[2]/div/div[5]/div[1]/span
+    should contain    ${text}    账户交易密码：
+    Input Text    id=password    aa111111
+    Click Button    id=acceptBtn
+    sleep    8
+    Comment    在资金明细中校验金额扣除记录是否正确
+    Click Element    Xpath=html/body/div[2]/div[1]/dl/dd[3]/a
+    ${text}    Get Text    Xpath=html/body/div[2]/div[2]/div[1]/div[1]
+    should contain    ${text}    资金明细
+    ${text}    Get Text    Xpath=html/body/div[2]/div[2]/div[2]/div[3]/table/tbody/tr[1]/td[2]
+    should contain    ${text}    -60,000.00
+    sleep    3
+
+转让尾包产品
+    comment    进入个人中心资产管理页面
+    Click element    Xpath=html/body/div[1]/div[2]/div/a[6]
+    Click element    Xpath=html/body/div[2]/div[1]/dl/dd[2]/a
+    Click element    Xpath=html/body/div[2]/div[2]/div[2]/div[1]/a[1]
+    Click element    Xpath=html/body/div[2]/div[2]/div[2]/div[2]/table/tbody/tr[1]/td[5]/a
+    sleep    2
+    comment    转让
+    Click button    Xpath=html/body/div[2]/div[2]/div[1]/div/div[2]/div/button
+    Input Text    xpath=html/body/div[2]/div/div[2]/div[1]/table/tbody/tr[2]/td[1]/div/input    60000
+    Click element    xpath=html/body/div[2]/div/div[1]/p
+    sleep    2
+    Click button    id=f-push-product
+    sleep    3
+    Click button    id=send_code
+    sleep    3
+    ${code}    获取验证码
+    Input text    id=code    ${code}
+    Input text    id=password    aa111111
+    Click button    id=f-push
+    comment    检验转让是否成功
+    sleep    3
+    Click element    Xpath=html/body/div[1]/div[2]/div/a[4]
+    Assert    Xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[1]/a    autotesting
+    Assert    xpath=html/body/div[2]/div[2]/div[1]/div[1]/ul[2]/li[1]/span[2]    60000

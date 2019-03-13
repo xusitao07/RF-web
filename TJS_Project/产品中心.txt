@@ -1,0 +1,141 @@
+*** Settings ***
+Resource          public keyword.txt
+
+*** Test Cases ***
+产品列表筛选
+    [Documentation]    流程：
+    ...
+    ...    1、创建城建系列的产品
+    ...
+    ...    2、在产品中心点击城建系列进行筛选
+    ...
+    ...    3、查看筛选后列表前三条数据 所属系列是否为城建系列
+    comment    连续发三个城建测试产品系列产品
+    创建第一个产品
+    sleep    5
+    创建第二个产品
+    sleep    5
+    创建第三个产品
+    comment    产品列表筛选
+    登录同金社1    http://www.tjs.com/    ff    18770053344    aa111111    name=abtn    Xpath=html/body/div[1]/div[2]/div/a[1]
+    ...    首页
+    sleep    2
+    comment    点击城建系列筛选并判断第一个产品是否为在售产品
+    click element    xpath=html/body/div[1]/div[2]/div/a[2]
+    click element    xpath=html/body/div[2]/div[2]/dl/dd[1]/a[2]
+    ${text}    get text    xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[2]/a/button
+    @{text1}    create list    ${text}
+    @{text2}    create list    立即认购    立即投资
+    ${text3}    should_be_in    @{text1}    @{text2}
+    run keyword if    ${text3} == False    详情页打开不能进行
+    ...    ELSE    获取产品所属系列
+    关闭浏览器
+    comment    删除产品
+    @{sql_list}    create list    DELETE FROM n_product WHERE NAME = '城建系列1'    DELETE FROM n_product WHERE NAME = '城建系列2'    DELETE FROM n_product WHERE NAME = '城建系列3'
+    :FOR    ${i}    IN    @{sql_list}
+    \    log    ${i}
+    \    newDelProduct    num_pro    ${i}
+    \    sleep    2
+
+产品详情页正常打开
+    登录同金社1    http://www.tjs.com/    ff    18770053344    aa111111    name=abtn    Xpath=html/body/div[1]/div[2]/div/a[1]
+    ...    首页
+    click element    Xpath=html/body/div[1]/div[2]/div/a[2]
+    sleep    2
+    ${text}    Get text    xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[2]/a/button
+    @{text1}    create list    ${text}
+    @{text2}    create list    立即认购    立即投资
+    ${text3}    should_be_in    @{text1}    @{text2}
+    Run keyword if    ${text3} == False    详情页打开不能进行
+    ...    ELSE    校验页面打开是否正常
+
+产品列表排序
+
+产品列表翻页
+    登录同金社1    http://www.tjs.com/    ff    18770053344    aa111111    name=abtn    Xpath=html/body/div[1]/div[2]/div/a[1]
+    ...    首页
+    click element    xpath=html/body/div[1]/div[2]/div/a[2]
+    sleep    2
+    Wait Until Page Contains Element    xpath=html/body/div[2]/div[2]/div[3]/a[1]    2    当前只有一页产品列表不能进行翻页操作
+    comment    获取第一页第一位产品名称
+    ${text}    get text    xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[1]/span
+    comment    翻页
+    click element    xpath=html/body/div[2]/div[2]/div[3]/a[1]
+    sleep    2
+    comment    获取第二页第一位产品名称
+    ${text1}    get text    xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[1]/span
+    should not be equal    ${text}    ${text1}
+    关闭浏览器
+
+*** Keywords ***
+选择列表第一个产品并返回所属系列
+    sleep    2
+    click button    xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[2]/a/button
+    click button    xpath=.//*[@id='box_real_btn']/button
+    ${text}    Get Text    xpath=html/body/div[2]/div/div[4]/div[1]/div/div[2]/div[2]/table/tbody/tr[7]/td
+    [Return]    ${text}
+
+选择列表第二个产品并返回所属系列
+    sleep    2
+    click button    xpath=html/body/div[2]/div[2]/div[1]/div[2]/div[2]/a/button
+    click button    xpath=.//*[@id='box_real_btn']/button
+    ${text}    Get Text    xpath=html/body/div[2]/div/div[4]/div[1]/div/div[2]/div[2]/table/tbody/tr[7]/td
+    [Return]    ${text}
+
+选择列表第三个产品并返回所属系列
+    sleep    2
+    click element    xpath=html/body/div[2]/div[2]/div[1]/div[3]/div[2]/a/button
+    click button    xpath=.//*[@id='box_real_btn']/button
+    ${text}    Get Text    xpath=html/body/div[2]/div/div[4]/div[1]/div/div[2]/div[2]/table/tbody/tr[7]/td
+    [Return]    ${text}
+
+详情页打开不能进行
+    Wait Until Page Contains Element    Xpath=aaa    2    当前页面没有在售产品
+
+校验页面打开是否正常
+    click button    xpath=html/body/div[2]/div[2]/div[1]/div[1]/div[2]/a/button
+    click button    xpath=.//*[@id='box_real_btn']/button
+    Assert    xpath=html/body/div[2]/div/div[3]/div[1]/div/div[1]/a[1]    项目介绍
+    Assert    xpath=html/body/div[2]/div/div[3]/div[1]/div/div[1]/a[2]    投资记录
+    Assert    xpath=html/body/div[2]/div/div[3]/div[1]/div/div[1]/a[3]    相关资料
+    关闭浏览器
+
+创建第一个产品
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    后台创建产品    ${create_product_args["CreatrUrl"]}    ${CreatePostDate3}
+    sleep    3
+    Import Variables    ${CURDIR}\\selenium_diy4.py
+    log    ${Reviewed["ReviewedUrl"]}
+    log    ${ReviewedPostDate1}
+    后台审核产品    ${Reviewed["ReviewedUrl"]}    ${ReviewedPostDate1}
+
+创建第二个产品
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    后台创建产品    ${create_product_args["CreatrUrl"]}    ${CreatePostDate4}
+    sleep    3
+    Import Variables    ${CURDIR}\\selenium_diy5.py
+    log    ${Reviewed["ReviewedUrl"]}
+    log    ${ReviewedPostDate2}
+    后台审核产品    ${Reviewed["ReviewedUrl"]}    ${ReviewedPostDate2}
+
+创建第三个产品
+    Import Variables    ${CURDIR}\\selenium_diy.py
+    后台创建产品    ${create_product_args["CreatrUrl"]}    ${CreatePostDate5}
+    sleep    3
+    Import Variables    ${CURDIR}\\selenium_diy6.py
+    log    ${Reviewed["ReviewedUrl"]}
+    log    ${ReviewedPostDate3}
+    后台审核产品    ${Reviewed["ReviewedUrl"]}    ${ReviewedPostDate3}
+
+获取产品所属系列
+    ${actualValue1}    选择列表第一个产品并返回所属系列
+    click element    xpath=html/body/div[1]/div[2]/div/a[2]
+    click element    xpath=html/body/div[2]/div[2]/dl/dd[1]/a[2]
+    ${actualValue2}    选择列表第二个产品并返回所属系列
+    click element    xpath=html/body/div[1]/div[2]/div/a[2]
+    click element    xpath=html/body/div[2]/div[2]/dl/dd[1]/a[2]
+    ${actualValue3}    选择列表第三个产品并返回所属系列
+    @{actuallist1}    create list    ${actualValue1}    ${actualValue2}    ${actualValue3}
+    @{exceptlist}    create list    余姚建设    德清建设    余姚建设
+    ${text3}    should_be_in    @{actuallist1}    @{exceptlist}
+    should be true    '${text3}' == 'True'

@@ -1,0 +1,8 @@
+*** Settings ***
+Resource          public keyword.txt
+
+*** Test Cases ***
+登录
+    登录同金社1    http://www.tjs.com/    ff    18770053344    aa111111    name=abtn    Xpath=html/body/div[4]/div[1]
+    ...    新客专享
+    关闭浏览器

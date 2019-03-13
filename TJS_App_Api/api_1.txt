@@ -1,0 +1,749 @@
+*** Settings ***
+Suite Setup
+Library           AppiumLibrary
+Library           Selenium2Library
+Library           RequestsLibrary
+Library           Collections
+Library           BuiltIn
+Library           ../TJS_Project/mylibaryes/tool/Httpself.py
+
+*** Variables ***
+${ip}             http://192.168.111.113:8090
+${ip2}            http://192.168.113.144:8090
+
+*** Test Cases ***
+充值253
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_253;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    amount=10    pay_code=019    user_id=29c444a2-f654-4e10-a447-17ae93703d23
+    ${body2}    create dictionary    local=1    amount=    pay_code=019    user_id=29c444a2-f654-4e10-a447-17ae93703d23
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    充值金额太小
+    ...    #user id 为空
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    成功
+    delete all sessions
+
+转让_检测_购买
+    Comment    sleep    120
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_305;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded    #购买
+    ${order_id}    do_sql    SELECT id FROM n_order WHERE user_id = '7295a525-f571-4761-86e0-d75de3d53bc4' \ ORDER BY product_id \ DESC \ LIMIT \ 1    num_pro    id
+    发送验证码    transfer
+    ${sms_code}    do_sql    SELECT CODE FROM n_valid ORDER BY add_time DESC LIMIT 1    num_sms    CODE
+    ${body}    create dictionary    order_id=${order_id}    amount=500000    price=500000    fee_amt=0.2    receive_amt=99.8
+    ...    password=aa111111    sms_code=${sms_code}    local=1    user_id=7295a525-f571-4761-86e0-d75de3d53bc4    #发布转让
+    ${body3}    create dictionary    order_id=${order_id}    amount=500000    price=500000    fee_amt=1000    receive_amt=99.8
+    ...    password=aa111111    sms_code=${sms_code}    local=1    user_id=7295a525-f571-4761-86e0-d75de3d53bc4    #发布转让
+    ${body4}    create dictionary    order_id=${order_id}    amount=500000    price=500000    fee_amt=1000    receive_amt=499000
+    ...    password=aa111111    sms_code=${sms_code}    local=1    user_id=7295a525-f571-4761-86e0-d75de3d53bc4    #发布转让
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    请重新核对手续费
+    ...    #发布转让
+    访问接口并校验    ${ip}    /app    ${body3}    ${headers}    msg    请重新核对实际到账金额
+    ...    #发布转让
+    访问接口并校验    ${ip}    /app    ${body4}    ${headers}    msg    成功
+    ...    #发布转让
+    Comment    ${headers2}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_304;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded    #检测转让
+    Comment    ${body2}    create dictionary    local=1    user_id=7295a525-f571-4761-86e0-d75de3d53bc4    order_id=${order_id}
+    Comment    访问接口并校验    ${ip}    /app    ${body2}    ${headers2}    msg
+    ...    成功    #检测转让
+    购买转让产品
+    delete all sessions
+
+登录接口
+    Import Variables    ${CURDIR}\\api_date.py
+    create session    API    ${ip}
+    @{list2}    set variable    ${longin_date["fail"]}    ${longin_date["fail2"]}    #账号密码不正确
+    : FOR    ${j}    IN    @{list2}
+    \    ${res}    post request    API    /app    data=${j}    headers=${longin_headers}
+    \    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    \    log    ${res.content}
+    \    ${date}    to json    ${res.content}
+    \    ${text}    Get From Dictionary    ${date}    msg
+    \    Run Keyword And Continue On Failure    should be equal as strings    ${text}    请输入正确的账号密码
+    Comment    ${headers}    set variable    ${longin_headers}
+    Comment    ${body}    set variable    ${longin_date["fail3"]}
+    访问接口并校验    ${ip}    /app    ${longin_date["fail3"]}    ${longin_headers}    msg    用户错误次数超出
+    sleep    5
+    @{list1}    set variable    ${longin_date["sucess"]}    ${longin_date["sucess3"]}    ${longin_date["sucess2"]}    #正常登录
+    : FOR    ${i}    IN    @{list1}
+    \    ${res}    post request    API    /app    data=${i}    headers=${longin_headers}
+    \    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    \    log    ${res.content}
+    \    ${date}    to json    ${res.content}
+    \    ${text}    Get From Dictionary    ${date}    msg
+    \    Run Keyword And Continue On Failure    should be equal as strings    ${text}    成功
+    sleep    5
+    @{lis3t}    set variable    ${longin_date["fail4"]}    ${longin_date["fail5"]}    #密码位数不正确
+    : FOR    ${k}    IN    @{lis3t}
+    \    ${res}    post request    API    /app    data=${k}    headers=${longin_headers}
+    \    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    \    log    ${res.content}
+    \    ${date}    to json    ${res.content}
+    \    ${text}    Get From Dictionary    ${date}    msg
+    \    Run Keyword And Continue On Failure    should be equal as strings    ${text}    密码长度为8~20个字符
+    sleep    5
+    @{list_6}    set variable    ${longin_date["fail6"]}    ${longin_date["fail7"]}
+    : FOR    ${n}    IN    @{list_6}
+    \    log    ${n}
+    \    ${res}    post request    API    /app    data=${n}    headers=${longin_headers}
+    \    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    \    log    ${res.content}
+    \    ${date}    to json    ${res.content}
+    \    ${text}    Get From Dictionary    ${date}    msg
+    \    Run Keyword And Continue On Failure    should be equal as strings    ${text}    请输入正确的手机号
+    delete all sessions
+
+调试
+    Comment    create session
+    Comment    ${res}    get request
+    Comment    should be equal as strings    ${res.status_code}    200
+    Comment    log    ${res.content}
+    Comment    ${date}    to json    ${res.content}
+    Comment    ${date}    create dictionary    mobile=18770027573    sms_code=333    password=    password_confirm=
+    ...    local=
+    Comment    log    ${date}
+    Comment    ${date}    set variable    123
+    Comment    ${body1}    create dictionary    abc=${date}
+    Comment    ${ID}    do_sql    SELECT id FROM n_product WHERE name = '777鹅鹅鹅'    num_pro    id
+
+忘记密码发送验证码接口
+    Import Variables    ${CURDIR}\\api_date.py
+    create session    API    ${ip}
+    ${res}    post request    API    /app    data=${YanZhengMa["domain"]}    headers=${longin_headers2}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    请输入正确的手机号
+    #222
+    ${params2}    create dictionary    mobile=13156584745    domain=forget    is_voice=0    local=1
+    ${res}    post request    API    /app    data=${params2}    headers=${longin_headers2}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    用户不存在
+    #333
+    ${params3}    create dictionary    mobile=18770027573    domain=forget    is_voice=0    local=1
+    ${res}    post request    API    /app    data=${params3}    headers=${longin_headers2}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    成功
+    delete all sessions
+
+注册账号发送验证码接口
+    Import Variables    ${CURDIR}\\api_date.py
+    create session    API    ${ip}
+    ${res}    post request    API    /app    data=${YanZhengMa["domain2"]}    headers=${longin_headers2}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    请输入正确的手机号
+    #222
+    ${params2}    create dictionary    mobile=18716114745    domain=register    is_voice=0    local=1
+    ${res}    post request    API    /app    data=${params2}    headers=${longin_headers2}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    成功
+    #333
+    ${params3}    create dictionary    mobile=187700275731111    domain=register    is_voice=0    local=1
+    ${res}    post request    API    /app    data=${params3}    headers=${longin_headers2}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    请输入正确的手机号
+    #444
+    ${params4}    create dictionary    mobile=18716114745    domain=register    is_voice=0    local=1
+    ${res}    post request    API    /app    data=${params4}    headers=${longin_headers2}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    发送短信太频繁,60秒内只能发送一次
+    delete all sessions
+
+忘记密码修改密码接口
+    sleep    120
+    Import Variables    ${CURDIR}\\api_date.py
+    #发送验证码
+    create session    API    ${ip}
+    ${params2}    create dictionary    mobile=18770027573    domain=forget    is_voice=0    local=1
+    ${res}    post request    API    /app    data=${params2}    headers=${longin_headers2}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    成功
+    #数据库获取验证码
+    ${code}    do_sql    SELECT CODE FROM n_valid ORDER BY add_time DESC LIMIT 1    num_sms    CODE
+    log    ${code}
+    Comment    #忘记密码接口
+    ${par}    create dictionary    mobile=18770027573    sms_code=${code}    password=aaa    password_confirm=aaa    local=1
+    create session    API    ${ip}
+    ${res2}    post request    API    /app    data=${par}    headers=${WangJiMiMa_headers}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res2.status_code}    200    #查看响应是否成功
+    log    ${res2.content}
+    ${date}    to json    ${res2.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    请填写正确的密码
+    #222222
+    ${par}    create dictionary    mobile=18770027573    sms_code=${code}    password=aa111111    password_confirm=aa111111111    local=1
+    create session    API    ${ip}
+    ${res3}    post request    API    /app    data=${par}    headers=${WangJiMiMa_headers}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res3.status_code}    200    #查看响应是否成功
+    log    ${res3.content}
+    ${date}    to json    ${res3.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    两次输入密码不一致
+    #33333
+    ${par}    create dictionary    mobile=18770027573    sms_code=${code}    password=    password_confirm=    local=1
+    create session    API    ${ip}
+    ${res4}    post request    API    /app    data=${par}    headers=${WangJiMiMa_headers}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res4.status_code}    200    #查看响应是否成功
+    log    ${res4.content}
+    ${date}    to json    ${res4.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    参数不能为空
+    #44444
+    ${par}    create dictionary    mobile=18770    sms_code=${code}    password=aa111111    password_confirm=aa111111    local=1
+    create session    API    ${ip}
+    ${res5}    post request    API    /app    data=${par}    headers=${WangJiMiMa_headers}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res5.status_code}    200    #查看响应是否成功
+    log    ${res5.content}
+    ${date}    to json    ${res5.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    请输入正确的手机号
+    delete all sessions
+
+修改密码接口
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_104;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    opassword=aa111111    password=aa111111    local=1    #新旧密码一致
+    create session    API    ${ip}
+    ${res}    post request    API    /app    data=${body1}    headers=${headers}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    新旧密码一致
+    #22222
+    ${body2}    create dictionary    opassword=aa111111    password=    local=1    #参数不能为空
+    ${body3}    create dictionary    opassword=    password=aa111111    local=1    #参数不能为空
+    @{list1}    set variable    ${body3}    ${body2}
+    : FOR    ${i}    IN    @{list1}
+    \    create session    API    ${ip}
+    \    ${res}    post request    API    /app    data=${i}    headers=${headers}
+    \    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    \    log    ${res.content}
+    \    ${date}    to json    ${res.content}
+    \    ${text}    Get From Dictionary    ${date}    msg
+    \    Run Keyword And Continue On Failure    should be equal as strings    ${text}    参数不能为空
+    #2222
+    ${body4}    create dictionary    opassword=aa    password=aa    local=1    #账号没有访问权限
+    create session    API    ${ip}
+    ${res}    post request    API    /app    data=${body4}    headers=${headers}
+    Run Keyword And Continue On Failure    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    msg
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    请填写正确的密码
+    delete all sessions
+
+用户账户信息接口
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_105;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body}    create dictionary    local=1    user_id=d49c9091-5f42-4554-bdf1-127ac7b15990
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    delete all sessions
+
+退出登录接口
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_106;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body}    create dictionary    local=1
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    ${body2}    create dictionary    local=
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    账号没有访问权限
+    delete all sessions
+
+ip解锁接口
+    Comment    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_107;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    Comment    ${body}    create dictionary    captcha=    local=1
+
+授权登录
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_109;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body}    create dictionary    app_key=6002    local=1    api=tjs.convenient.buy    encrypt_str=1aa22d19dc5480b71891a5d33c323d5e3b1c5af02afbd8481c1f3f33577f52326c21acdd2850ccc8969d490288b5f9d1014cbc6910452ef4a96c7ccef9948d8cc7af843ae335f493a66355daa4cca070c486d274cf8bcc3968024a3dc0a8d4d30da52c04e48564291a82459e8161c36735763fa34cd07cef838208f62a07b241d64aa67c0a466f020041633342271ede6e35c6ae9b1e72e784926e816fb31eff3b64eb0f192410e49d28fd53c6ed7ecf26963814244896e39e2a82380270339c4f4b87e57b3e3188aea6560a3142b57b54ef5f66cbe3c18b8771bb231c20e5d2d0db09d988648d87c4d7c5dd7f295ba9354095dbb250100d5dfef2b4a1593c5ef14d0510b2dbc42b768c872bbf34aadf6d2e93a07b7371bb305bd5dd97d07a20f46df46b56bdd3d276f04be8f5e2d167a6d6409df4f95de8857fff49dfcf94d3899b241e9cb9148de449fee3bec8f5323f953905eee130f0d544e461d3be0cc26614f837cd3c64a1593c8c0403d5208d
+    ${body2}    create dictionary    app_key=6002    local=1    api=tjs.convenient.buy    encrypt_str=
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    data    {"res": "success"}
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    参数不能为空
+
+账号信息150
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_150;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body}    create dictionary    user_id=0a94eee1-8131-4e19-b6c3-ae8c3a8c326a    local=1
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    data    {"available": "5500.00", "not_arrived_count": "0", "balance": "5500.00", "unpay_interest": "0.00", "freeze": "0.00", "repayment_tip": "当前有count笔回款，共计money元正在回款处理中", "total": "6000.00", "not_arrived_money": "0.00", "hold": "0.00"}
+
+用户资金查看接口151
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_151;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body}    create dictionary    user_id=01442662-9d4d-41b3-995e-99a78e057555    local=1
+    ${body2}    create dictionary    user_id=01442662-9d4d-41b3-995e-99a78e057555    local=
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    ${data}    访问接口并校验2    ${ip}    /app    ${body}    ${headers}    data
+    Run Keyword And Continue On Failure    should be true    ${data["available"]}==108939095.54    #校验返回数据
+    Run Keyword And Continue On Failure    should be true    ${data["withdraw_fee"]}==0    #校验返回数据
+    Run Keyword And Continue On Failure    should be true    ${data["balance"]}==108939195.54    #校验返回数据
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    账号没有访问权限
+
+152
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_152;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body}    create dictionary    user_id=01442662-9d4d-41b3-995e-99a78e057555    local=1
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    data    {"asset_tab_title": [{"type": "hold", "title": "持有中"}, {"type": "ready", "title": "转让中"}, {"type": "settlement", "title": "已结清"}, {"type": "transfer", "title": "已转让"}, {"type": "unpay", "title": "待支付"}, {"type": "confirm", "title": "募集中"}], "bottom_nav": [{"title": "首页", "icon_on": "http://192.168.111.7/tongjin-app/public/static/icon_home_on.png", "icon": "http://192.168.111.7/tongjin-app/public/static/icon_home.png"}, {"title": "理财", "icon_on": "http://192.168.111.7/tongjin-app/public/static/icon_licai_on.png", "icon": "http://192.168.111.7/tongjin-app/public/static/icon_licai.png"}, {"title": "我的", "icon_on": "http://192.168.111.7/tongjin-app/public/static/icon_my_on.png", "icon": "http://192.168.111.7/tongjin-app/public/static/icon_my.png"}], "info_nav": [[{"url": "tjs://www.tjs.com.cn/myinfo/accountsafety", "code": "accountsafety", "title": "账户安全"}, {"url": "tjs://www.tjs.com.cn/myinfo/mybankcard", "code": "mybankcard", "title": "我的银行卡"}, {"url": "tjs://www.tjs.com.cn/common/commonWeb?url=http://wap.tjs.com/tjs/webview/risk.html?app=1", "code": "risk", "title": "风险偏好"}], [{"url": "tjs://www.tjs.com.cn/common/commonWeb?url=http://wap.tjs.com/tjs/webview/abouts.html?app=1", "code": "about", "title": "关于我们"}, {"url": "tjs://www.tjs.com.cn/common/commonWeb?url=http://wap.tjs.com/tjs/webview/help.html?app=1", "code": "help", "title": "帮助中心"}, {"url": "tjs://www.tjs.com.cn/common/commonWeb?url=http://wap.tjs.com/tjs/webview/safe.html?app=1", "code": "safe", "title": "安全保障"}]], "my_nav": [[{"url": "tjs://www.tjs.com.cn/myinfo/property", "title": "资产管理", "code": "property", "icon": "http://192.168.111.7/tongjin-app/public/static/icon_assets.png"}, {"url": "tjs://www.tjs.com.cn/common/commonWeb?url=http://wap.tjs.com/tjs/webview/capital_detail.html?app=1", "title": "资金明细", "code": "capitaldetail", "icon": "http://192.168.111.7/tongjin-app/public/static/icon_finance.png"}, {"url": "tjs://www.tjs.com.cn/common/commonWeb?url=http://wap.tjs.com/tjs/webview/capital_plan.html?app=1", "title": "回款计划", "code": "capitalplan", "icon": "http://192.168.111.7/tongjin-app/public/static/icon_refund.png"}], [{"url": "tjs://www.tjs.com.cn/common/commonWeb?url=http://wap.tjs.com/tjs/webview/integral.html?app=1", "title": "积分管理", "code": "integral", "icon": "http://192.168.111.7/tongjin-app/public/static/icon_score.png"}, {"url": "tjs://www.tjs.com.cn/common/commonWeb?url=http://wap.tjs.com/tjs/webview/invite.html?app=1", "title": "邀请奖励", "code": "invite", "icon": "http://192.168.111.7/tongjin-app/public/static/icon_invite.png"}, {"url": "tjs://www.tjs.com.cn/common/commonWeb?url=http://wap.tjs.com/tjs/webview/coupon.html?app=1", "title": "优惠券管理", "code": "coupon", "icon": "http://192.168.111.7/tongjin-app/public/static/icon_ticket.png"}]], "finance_nav": [{"url": "tjs://shuniuyun.com/product/product?index=0", "title": "理财优选"}, {"url": "tjs://shuniuyun.com/product/product?index=1", "title": "转让专区"}], "service_phone": {"url": "400-8015-138", "title": "客服电话：400-8015-138"}}
+    delete all sessions
+
+200
+    Import Variables    ${CURDIR}\\pram.py
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_200;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body}    create dictionary    user_id=0cb25cea-5e3f-40b2-8c52-5d571272a4e5    local=1    #------user_id不为空------
+    ${body2}    create dictionary    user_id=    local=1    #------user_id为空------
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    Comment    ${c}    evaluate    '${arg[0]}'.decode('utf-8')    #将arg[0]的参数转换成可显示中文
+    Comment    log    ${c}
+    sleep    2
+    ${data}    访问接口并校验2    ${ip}    /app    ${body}    ${headers}    data
+    log    ${data}    #打印所以返回的data数据
+    Run Keyword And Continue On Failure    should not be empty    ${data["footer_url"]}    #校验返回数据不为空
+    ${home_product}    setvariable    ${data["home_product"]}
+    ${home_product1}    setvariable    ${home_product[1]}
+    Run Keyword And Continue On Failure    should not be empty    ${home_product1["name"]}    #校验返回数据
+    Run Keyword And Continue On Failure    should not be empty    ${home_product1["id"]}    #校验返回数据
+    #------user_id为空------
+    ${data2}    访问接口并校验2    ${ip}    /app    ${body2}    ${headers}    data
+    Run Keyword And Continue On Failure    should not be empty    ${data2["footer_url"]}    #校验返回数据不为空
+    Run Keyword And Continue On Failure    should \ be empty    ${data2["home_product"]}    #校验返回数据为空
+    delete all sessions
+
+用户产品列表201
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_201;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body}    create dictionary    user_id=0cb25cea-5e3f-40b2-8c52-5d571272a4e5    local=1
+    ${body2}    create dictionary    user_id=0cb25cea-5e3f-40b2-8c52-5d571272a4e5    local=1    limit=1    order_by=1
+    ${body2}    create dictionary    user_id=0cb25cea-5e3f-40b2-8c52-5d571272a4e5    local=1    limit=2    order_by=1
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    成功
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    成功
+    delete all sessions
+
+产品详情202
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_202;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body2}    create dictionary    user_id=0cb25cea-5e3f-40b2-8c52-5d571272a4e5    local=1    product_id=3615
+    ${body}    create dictionary    user_id=0cb25cea-5e3f-40b2-8c52-5d571272a4e5    local=1    product_id=
+    log    -------校验正常请求接口返回data数据-------
+    ${text}    访问接口并校验2    ${ip}    /app    ${body2}    ${headers}    data
+    log    ${text}    #打印接口返回的data数据
+    should not be empty    ${text["product_info"]}
+    log    ${text["product_info"]}
+    ${product_info}    set variable    ${text["product_info"]}
+    log    ${product_info}
+    Run Keyword And Continue On Failure    should be true    ${product_info["total_amount"]}>0
+    Run Keyword And Continue On Failure    should be true    ${product_info["id"]}==3615
+    log    -------校验正常请求接口返回msg-------
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    成功
+    log    -------校验异常请求接口返回msg-------
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    出错啦，请稍后再试
+    ...    #productid为空
+    delete all sessions
+
+转让列表页203
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_203;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body}    create dictionary    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4    local=1    limit=2
+    ${body2}    create dictionary    user_id=    local=1    limit=2
+    log    -------校验异常请求接口返回msg-------
+    ${data}    访问接口并校验2    ${ip}    /app    ${body2}    ${headers}    data
+    ...    #userid为空
+    log    ${data}
+    Run Keyword And Continue On Failure    should be empty    ${data["list"]}
+    Run Keyword And Continue On Failure    should be true    ${data["count"]}==0
+    log    -------校验正常请求接口返回msg-------
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    log    -------校验正常请求接口返回data数据校验-------
+    ${data2}    访问接口并校验2    ${ip}    /app    ${body}    ${headers}    data
+    ...    #userid为空
+    ${list}    set variable    ${data2["list"]}
+    log    ${list[1]}
+    ${list1}    setvariable    ${list[1]}
+    Run Keyword And Continue On Failure    should be equal as strings    ${list1["status"]}    transfer    #校验返回数据
+    Run Keyword And Continue On Failure    should not be empty    ${list1["id"]}    \    #校验返回数据
+    Run Keyword And Continue On Failure    should be equal as strings    ${list1["remain_day_desc"]}    剩余期限    #校验返回数据
+    Run Keyword And Continue On Failure    should be equal as strings    ${list1["rate_desc"]}    预期年化收益率    #校验返回数据
+    Run Keyword And Continue On Failure    should not be empty    ${list1["name"]}    \    #校验返回数据
+    Run Keyword And Continue On Failure    should not be empty    ${list[0]}    \    ##校验返回数据
+    delete all sessions
+
+转让详情204
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_204;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body}    create dictionary    transfer_id=a2a1f2b6-b189-4d7b-8968-801ca99aaf0f    local=1
+    ${body2}    create dictionary    transfer_id=    local=1
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    出错啦，请稍后再试
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    log    -------校验正常请求接口返回data数据校验-------
+    ${data}    访问接口并校验2    ${ip}    /app    ${body}    ${headers}    data
+    log    ${data}
+    Run Keyword And Continue On Failure    should be equal as strings    ${data["transfer_info"]}    {"status": "cancel", "name": "0703非募集不继承", "price": "200.00", "actual_remain_day": "365", "agreement": [{"url": "http://wap.tjs.com/tjs/webview/agreement/3347/transfer?app=1", "select": 0, "title": "同意《转让交易协议》"}], "status_desc": "已撤销", "actual_rate": "6.88", "interest_end_time": "2019-07-03 00:00:00", "amount": "200.00", "interest": "13.76", "id": "a2a1f2b6-b189-4d7b-8968-801ca99aaf0f"}
+    delete all sessions
+
+实名认证250
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_250;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    true_name=是是是    id_card=61052519941214369X    bank_card=230709199401257667    pre_mobile=15267131784    local=1
+    ...    #获取身份证号网址http://shenfenzheng.293.net/?_t_t_t=0.0596391458529979
+    ${body3}    create dictionary    true_name=是是    id_card=61052519941214369X    bank_card=621223199212195990    pre_mobile=15267131784    local=1
+    ${body2}    create dictionary    true_name=是是    id_card=61052519941214369X    bank_card=    pre_mobile=15267131784    local=1
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    参数不能为空
+    访问接口并校验    ${ip}    /app    ${body3}    ${headers}    msg    该身份证号已经被注册
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问并校验接口3    ${ip}    /app    ${body1}    ${headers}
+    Comment    Run Keyword And Continue On Failure    should be equal as strings    ${data["transfer_info"]}
+    delete all sessions
+
+绑卡251
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_251;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    user_id=01442662-9d4d-41b3-995e-99a78e057555
+    ${body2}    create dictionary    local=1    user_id=
+    ${body3}    create dictionary    local=1    user_id=00a46a26-cb0c-48e1-8481-35d59bc89f73
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    请先开通银行存管账户
+    ...    #user id 为空
+    访问接口并校验    ${ip}    /app    ${body3}    ${headers}    msg    您已绑卡
+    ...    #user id为已绑卡id
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    成功
+    delete all sessions
+
+提现254
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_254;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    amount=10    user_id=0884d548-1dfc-41b8-a504-411748b25635
+    ${body2}    create dictionary    local=1    amount=10    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4
+    ${body3}    create dictionary    local=1    amount=10    user_id=185a07ba-8a21-4e9f-a2d2-53dfb036c8aa
+    ${body4}    create dictionary    local=1    amount=    user_id=185a07ba-8a21-4e9f-a2d2-53dfb036c8aa
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    请先开通银行存管账户
+    ...    #id账号未开通银行存管账户
+    访问接口并校验    ${ip}    /app    ${body3}    ${headers}    msg    您未绑定银行卡
+    ...    #id账号未绑定银行卡
+    访问接口并校验    ${ip}    /app    ${body4}    ${headers}    msg    充值金额太小
+    ...    #amount为空
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    成功
+    delete all sessions
+
+修改支付密码252
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_252;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    user_id=01442662-9d4d-41b3-995e-99a78e057555
+    ${body2}    create dictionary    local=1    user_id=
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    请先开通银行存管账户
+    ...    #user id 为空
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    成功
+    delete all sessions
+
+购买255
+    Comment    sleep    120
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_255;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    amount=100    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4    product_id=3693    coupon=248675e4-a734-47c5-bd58-eff6edfd4aa9,cc21db8e-c14f-4dae-9dad-a2234fe6db1b,1
+    ${body2}    create dictionary    local=1    amount=100    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4    product_id=3350    coupon=248675e4-a734-47c5-bd58-eff6edfd4aa9,cc21db8e-c14f-4dae-9dad-a2234fe6db1b,1
+    ${body3}    create dictionary    local=1    amount=100    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4    product_id=    coupon=248675e4-a734-47c5-bd58-eff6edfd4aa9,cc21db8e-c14f-4dae-9dad-a2234fe6db1b,1
+    ${body4}    create dictionary    local=1    amount=100    user_id=    product_id=3693    coupon=248675e4-a734-47c5-bd58-eff6edfd4aa9,cc21db8e-c14f-4dae-9dad-a2234fe6db1b,1
+    ${body5}    create dictionary    local=1    amount=100    user_id=11dff3d2-867b-4500-bd4b-6def2fff46cd    product_id=3693    coupon=248675e4-a734-47c5-bd58-eff6edfd4aa9,cc21db8e-c14f-4dae-9dad-a2234fe6db1b,1
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    产品已经结束购买
+    ...    #产品id已经结束购买
+    访问接口并校验    ${ip}    /app    ${body3}    ${headers}    msg    参数不能为空
+    ...    #product \ id为空
+    访问接口并校验    ${ip}    /app    ${body4}    ${headers}    msg    请先开通银行存管账户
+    ...    #userid为空
+    Comment    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg
+    ...    您有未支付订单，请先支付    #账号存在未支付订单
+    访问接口并校验    ${ip}    /app    ${body5}    ${headers}    msg    账户余额不足，请先充值
+    ...    #账号账户余额不足，请先充值
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    成功
+    delete all sessions
+
+购买转让256
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_256;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    amount=100    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4    transfer_id=043d2c96-2fb0-468b-902a-811d34f1b1ce
+    ${body2}    create dictionary    local=1    amount=100    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4    transfer_id=
+    ${body3}    create dictionary    local=1    amount=100    user_id=16612516-923f-4855-b033-17f88e267b97    transfer_id=70837e5f-7e8f-4d9a-a57a-3dd0ee667078
+    ${body4}    create dictionary    local=1    amount=20000    user_id=16612516-923f-4855-b033-17f88e267b97    transfer_id=70837e5f-7e8f-4d9a-a57a-3dd0ee667078
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    转让产品已结束购买，请选择其他理财产品。
+    ...    #转让产品已经结束购买
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    参数不能为空
+    ...    #transfer_id为空
+    访问接口并校验    ${ip}    /app    ${body3}    ${headers}    msg    转让产品已结束购买，请选择其他理财产品。
+    ...    #购买价格与转让价格不相等
+    log    -------校验正常请求接口返回msg数据校验-------
+    Comment    访问接口并校验    ${ip}    /app    ${body4}    ${headers}    msg
+    ...    成功
+    delete all sessions
+
+继续支付257
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_257;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    order_id=721f0d3b-7706-4a70-b080-afa06f85148b    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4
+    ${body2}    create dictionary    local=1    order_id=    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4
+    ${body3}    create dictionary    local=1    order_id=3e3120d4-5fe8-49e9-902d-0fcf206bfe3b    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    订单无法执行付款操作
+    ...    #订单已付款
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    参数不能为空
+    ...    #order_id为空
+    log    -------校验正常请求接口返回msg数据校验-------
+    Comment    访问接口并校验    ${ip}    /app    ${body3}    ${headers}    msg
+    ...    成功    #账号存在未支付订单
+    delete all sessions
+
+充值通道
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_258;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4
+    ${body3}    create dictionary    local=1    user_id=
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body3}    ${headers}    msg    请先开通银行存管账户
+    ...    #user_id为空
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    成功
+    ${data}    访问接口并校验2    ${ip}    /app    ${body1}    ${headers}    data
+    log    ${data}
+    ${list}    set variable    ${data["list"]}
+    ${list2}    set variable    ${list[0]}
+    Run Keyword And Continue On Failure    should be true    ${list2["limit_amount"]}==200000.00
+    Run Keyword And Continue On Failure    should be equal as strings    ${list2["limit_desc"]}    充值限额：每笔4 万元，每日20 万元，每月600 万元，数据仅供参考
+    Run Keyword And Continue On Failure    should be equal as strings    ${list2["pay_code"]}    019
+    delete all sessions
+
+我的投资列表300
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_300;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    user_id=d49c9091-5f42-4554-bdf1-127ac7b15990    status=hold    limit=2
+    ${body3}    create dictionary    local=1    user_id=d49c9091-5f42-4554-bdf1-127ac7b15990    status=transfer    limit=2
+    ${body2}    create dictionary    local=1    user_id=d49c9091-5f42-4554-bdf1-127ac7b15990    status=unpay    limit=2
+    ${body4}    create dictionary    local=1    user_id=d49c9091-5f42-4554-bdf1-127ac7b15990    status=    limit=2
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body4}    ${headers}    msg    参数不能为空
+    ...    #status为空
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    成功
+    ${data}    访问接口并校验2    ${ip}    /app    ${body1}    ${headers}    data
+    log    ${data}
+    Run Keyword And Continue On Failure    should not be empty    ${data["count"]}
+    ${list}    set variable    ${data["list"]}
+    ${limit}    evaluate    len(${list})    #计算返回列表中元素个数
+    Run Keyword And Continue On Failure    should be true    ${limit}==2    #校验limit参数是否正确
+    ${list2}    set variable    ${list[0]}
+    Run Keyword And Continue On Failure    should be equal as strings    ${list2["status_desc"]}    持有中    #校验状态
+    ${data2}    访问接口并校验2    ${ip}    /app    ${body2}    ${headers}    data
+    Run Keyword And Continue On Failure    should be empty    ${data2["list"]}    #未支付订单为空
+    ${data3}    访问接口并校验2    ${ip}    /app    ${body3}    ${headers}    data
+    ${list3}    set variable    ${data3["list"]}
+    ${limit2}    evaluate    len(${list3})
+    Run Keyword And Continue On Failure    should be true    ${limit2}==2    #校验limit参数是否正确
+    ${list4}    set variable    ${list3[0]}
+    Run Keyword And Continue On Failure    should be equal as strings    ${list4["status_desc"]}    已转让
+    delete all sessions
+
+订单详情
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_301;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    order_id=01c26c1a-a25b-4c55-9e73-12599b7bb4fe    #订单状态hold
+    ${body2}    create dictionary    local=1    order_id=efd23c8f-a963-4961-8cb8-e4d6db964351    #订单状态transfer
+    ${body4}    create dictionary    local=1    order_id=4955f828-8713-4806-9ba9-6551a143b2c0    #订单状态recycle
+    ${body3}    create dictionary    local=1    order_id=
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body3}    ${headers}    msg    参数不能为空
+    ...    #user_id为空
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    成功
+    ${data}    访问接口并校验2    ${ip}    /app    ${body1}    ${headers}    data
+    log    ${data}
+    Run Keyword And Continue On Failure    should be equal as strings    ${data["status"]}    hold
+    ${data2}    访问接口并校验2    ${ip}    /app    ${body2}    ${headers}    data
+    log    ${data2}
+    Run Keyword And Continue On Failure    should be equal as strings    ${data2["status"]}    transfer
+    ${data3}    访问接口并校验2    ${ip}    /app    ${body4}    ${headers}    data
+    log    ${data3}
+    Run Keyword And Continue On Failure    should be equal as strings    ${data3["status"]}    recycle
+    delete all sessions
+
+取消订单
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_302;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    order_id=efd23c8f-a963-4961-8cb8-e4d6db964351
+    ${body3}    create dictionary    local=1    order_id=
+    log    -------校验异常请求接口返回数据-------
+    访问接口并校验    ${ip}    /app    ${body3}    ${headers}    msg    参数不能为空
+    ...    #user_id为空
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    成功
+    delete all sessions
+
+生成rsa公私钥
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_400;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    成功
+    ${data}    访问接口并校验2    ${ip}    /app    ${body1}    ${headers}    data
+    Run Keyword And Continue On Failure    should not be empty    ${data["k"]}
+    delete all sessions
+
+获取banner列表
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_401;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    成功
+    ${data}    访问接口并校验2    ${ip}    /app    ${body1}    ${headers}    data
+    Run Keyword And Continue On Failure    should not be empty    ${data["home_list"]}
+    ${list}    set variable    ${data["home_list"]}
+    ${list2}    set variable    ${list[0]}
+    Run Keyword And Continue On Failure    should not be empty    ${list2["link"]}
+    Run Keyword And Continue On Failure    should not be empty    ${list2["img_url"]}
+    Run Keyword And Continue On Failure    should be equal as strings    ${list2["link_type"]}    normal
+    delete all sessions
+
+获取h5地址
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_403;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    t=
+    ${body2}    create dictionary    local=1    t=captcha    #带键值访问
+    ${body3}    create dictionary    local=1    t=home_footer    #带键值访问
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    成功
+    ${data}    访问接口并校验2    ${ip}    /app    ${body1}    ${headers}    data
+    Run Keyword And Continue On Failure    should not be empty    ${data["url"]}
+    ${url}    set variable    ${data["url"]}
+    Run Keyword And Continue On Failure    should not be empty    ${url["captcha"]}    #校验接口返回字段不为空
+    Run Keyword And Continue On Failure    should not be empty    ${url["home_footer"]}
+    Run Keyword And Continue On Failure    should not be empty    ${url["message"]}
+    Run Keyword And Continue On Failure    should not be empty    ${url["news_list"]}
+    Run Keyword And Continue On Failure    should not be empty    ${url["reg_agreement"]}
+    Run Keyword And Continue On Failure    should not be empty    ${url["risk"]}
+    Run Keyword And Continue On Failure    should not be empty    ${url["shop_mall"]}
+    Run Keyword And Continue On Failure    should not be empty    ${url["transfer_rule"]}
+    Run Keyword And Continue On Failure    should not be empty    ${url["unbind"]}
+    Run Keyword And Continue On Failure    should not be empty    ${url["verify"]}
+    Run Keyword And Continue On Failure    should not be empty    ${url["withdraw_tip"]}
+    ${data2}    访问接口并校验2    ${ip}    /app    ${body2}    ${headers}    data
+    log    ${data2}
+    Run Keyword And Continue On Failure    should be equal as strings    ${data2["url"]}    http://192.168.113.114:8090/safety/show
+    ${data3}    访问接口并校验2    ${ip}    /app    ${body3}    ${headers}    data
+    log    ${data3}
+    Run Keyword And Continue On Failure    should be equal as strings    ${data3["url"]}    http://wap.tjs.com/tjs/webview/app_index?app=1
+    delete all sessions
+
+*** Keywords ***
+打开app
+    Comment    Open Application    http://192.168.111.62:4723/wd/hub    platformName=Android    platformVersion=6.0.1    deviceName=83c4caa7    app=F:/android-sdk/Tjs_shuniu_1.2.5debug.apk
+    ...    appPackage=com.shuniuyun.tjs    appActivity=com.shuniuyun.tjs.ui.main.activity.MainActivity    unicodeKeyboard=True    resetKeyboard=True
+    Open Application    http://192.168.111.62:4723/wd/hub    platformName=Android    platformVersion=8.0.0    deviceName=SJE5T17308000718    app=F:/android-sdk/Tjs_shuniu_1.2.5debug.apk    appPackage=com.shuniuyun.tjs
+    ...    appActivity=com.shuniuyun.tjs.ui.main.activity.MainActivity    unicodeKeyboard=True    resetKeyboard=True
+
+访问接口并校验
+    [Arguments]    ${url}    ${ur2}    ${api_body}    ${api_headers}    ${msg}    ${except}
+    [Documentation]    ${url} | \ \ \ 域名ps：http://192.168.111.113:8090
+    ...    ${ur2} | \ \ 地址ps：/app
+    ...    ${api_body} | \ \ \ 发送参数
+    ...    ${api_headers} | \ 发送头
+    ...    ${msg}| \ \ \ \ 接口返回校验值
+    ...    ${except} \ 期望值
+    create session    API    ${url}
+    ${res}    post request    API    ${ur2}    data=${api_body}    headers=${api_headers}
+    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    ${msg}
+    Run Keyword And Continue On Failure    should be equal as strings    ${text}    ${except}    #出错后继续执行as strings
+
+访问接口并校验2
+    [Arguments]    ${url}    ${ur2}    ${api_body}    ${api_headers}    ${msg}
+    [Documentation]    ${url} | \ \ \ 域名ps：http://192.168.111.113:8090
+    ...    ${ur2} | \ \ 地址ps：/app
+    ...    ${api_body} | \ \ \ 发送参数
+    ...    ${api_headers} | \ 发送头
+    ...    ${msg}| \ \ \ \ 接口返回校验的对象
+    ...    ${except} \ 期望值
+    create session    API    ${url}
+    ${res}    post request    API    ${ur2}    data=${api_body}    headers=${api_headers}
+    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    ${date}    to json    ${res.content}
+    ${text}    Get From Dictionary    ${date}    ${msg}
+    Comment    Run Keyword And Continue On Failure    should be in    ${text}    ${except}    #出错后继续执行
+    [Return]    ${text}
+
+访问并校验接口3
+    [Arguments]    ${url}    ${ur2}    ${api_body}    ${api_headers}
+    [Documentation]    ${url} | \ \ \ 域名ps：http://192.168.111.113:8090
+    ...    ${ur2} | \ \ 地址ps：/app
+    ...    ${api_body} | \ \ \ 发送参数
+    ...    ${api_headers} | \ 发送头
+    ...    ${msg}| \ \ \ \ 接口返回校验的对象
+    ...    ${except} \ 期望值
+    create session    API    ${url}
+    ${res}    post request    API    ${ur2}    data=${api_body}    headers=${api_headers}
+    should be equal as strings    ${res.status_code}    200    #查看响应是否成功
+    log    ${res.content}
+    Comment    ${date}    to json    ${res.content}
+    Comment    ${text}    Get From Dictionary    ${date}    ${msg}
+    Comment    Run Keyword And Continue On Failure    should be in    ${text}    ${except}    #出错后继续执行
+
+后台创建产品
+    [Arguments]    ${CreatrUrl}    ${CreatePostDate}
+    CreatProduct    ${CreatrUrl}    ${CreatePostDate}
+
+后台审核产品
+    [Arguments]    ${ReviewedUrl}    ${ReviewedPostDate}
+    examine    ${ReviewedUrl}    ${ReviewedPostDate }
+
+后台删除产品
+    DelProduct
+
+产品成标
+    [Arguments]    ${establishUrl}    ${establishDate}
+    examine    ${establishUrl}    ${establishDate}
+    sleep    2
+
+发送验证码
+    [Arguments]    ${key}
+    [Documentation]    key \ 参数 register(注册)|forget(忘记密码)| transfer(转让)
+    log    ${key}
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_102;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body}    create dictionary    mobile=18770057777    local=1    domain=${key}    user_id=7295a525-f571-4761-86e0-d75de3d53bc4
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    ...    #购买
+
+支付
+    [Arguments]    ${order_id}    ${user_id}
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_257;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded    #发布转让
+    ${body}    create dictionary    local=1    order_id=${order_id}    user_id=${user_id}
+    访问接口并校验    ${ip}    /app    ${body}    ${headers}    msg    成功
+    ...    #发布转让
+
+购买转让产品
+    ${headers}    create dictionary    User-Agent=ios_Simulator;11.4;6BC7AA24-D8D5-4BA7-92BA-B3740ECDCFB2;10010_v1_256;b22d502937bbdf4bdbb20a707765498a    Content-Type=application/x-www-form-urlencoded
+    ${body1}    create dictionary    local=1    amount=100    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4    transfer_id=043d2c96-2fb0-468b-902a-811d34f1b1ce
+    ${body2}    create dictionary    local=1    amount=100    user_id=31d8c707-18b2-4b0b-80cd-f396b36ef3b4    transfer_id=
+    ${body3}    create dictionary    local=1    amount=100    user_id=16612516-923f-4855-b033-17f88e267b97    transfer_id=70837e5f-7e8f-4d9a-a57a-3dd0ee667078
+    sleep    10
+    ${transfer_id}    do_sql    SELECT id FROM n_transfer WHERE user_id = '7295a525-f571-4761-86e0-d75de3d53bc4' \ ORDER BY transfer_time \ DESC \ LIMIT \ 1    num_pro    id
+    ${body4}    create dictionary    local=1    amount=20000    user_id=16612516-923f-4855-b033-17f88e267b97    transfer_id=${transfer_id}
+    ${body5}    create dictionary    local=1    amount=500000    user_id=29c444a2-f654-4e10-a447-17ae93703d23    transfer_id=${transfer_id}
+    ${body6}    create dictionary    local=1    amount=500000    user_id=7295a525-f571-4761-86e0-d75de3d53bc4    transfer_id=${transfer_id}
+    访问接口并校验    ${ip}    /app    ${body1}    ${headers}    msg    转让产品已结束购买，请选择其他理财产品。
+    ...    #转让产品已经结束购买
+    访问接口并校验    ${ip}    /app    ${body2}    ${headers}    msg    参数不能为空
+    ...    #transfer_id为空
+    访问接口并校验    ${ip}    /app    ${body3}    ${headers}    msg    转让产品已结束购买，请选择其他理财产品。
+    ...    #购买价格与转让价格不相等
+    访问接口并校验    ${ip}    /app    ${body4}    ${headers}    msg    购买价格与转让价格不相等
+    访问接口并校验    ${ip}    /app    ${body6}    ${headers}    msg    不能购买自己发布的产品
+    log    -------校验正常请求接口返回msg数据校验-------
+    访问接口并校验    ${ip}    /app    ${body5}    ${headers}    msg    成功

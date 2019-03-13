@@ -1,0 +1,5 @@
+# Netscape HTTP Cookie File
+# http://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file!  Do not edit.
+
+admin.tjs.com	FALSE	/	FALSE	1528984737	tj_sess	ab970fc8dabb05607226a3044b6066e07cdccfd5

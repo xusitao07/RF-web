@@ -1,0 +1,11 @@
+*** Settings ***
+Library           mylibaryes/tool/Httpself.py
+Library           Selenium2Library
+
+*** Test Cases ***
+调试
+    Comment    ${key}    set variable    12.0    2aa22    22222
+    Comment    : FOR    ${i}    IN RANGE    3
+    Comment    \    ${a}    len    ${key[${i}]}
+    Comment    \    log    ${a}
+    Comment    log    ${key[0]}

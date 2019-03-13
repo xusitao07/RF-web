@@ -1,0 +1,1 @@
+pybot.bat -d D:\RF\TJS_Project\${1BUILD_TIMESTAMP}   D:\RF\TJS_Project\Test.txt D:\RF\TJS_Project\CommonlyUsed.txt   

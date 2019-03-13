@@ -1,0 +1,13 @@
+*** Test Cases ***
+调试
+    Comment    create session
+    Comment    ${res}    get request
+    Comment    should be equal as strings    ${res.status_code}    200
+    Comment    log    ${res.content}
+    Comment    ${date}    to json    ${res.content}
+    Comment    ${date}    create dictionary    mobile=18770027573    sms_code=333    password=    password_confirm=
+    ...    local=
+    Comment    log    ${date}
+    Comment    ${date}    set variable    123
+    Comment    ${body1}    create dictionary    abc=${date}
+    Comment    ${ID}    do_sql    SELECT id FROM n_product WHERE name = '777鹅鹅鹅'    num_pro    id

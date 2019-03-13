@@ -1,0 +1,55 @@
+# coding=utf-8
+create_product_args = {
+
+    "CreatrUrl": "http://admin.tjs.com/server/product/edit.html",
+
+}
+
+CreatePostDate = {
+
+    "product_model": "3",
+    "category_id": "11",
+    "type": "1",
+    "name": "autotesting",
+    "user_id": "60c74e91-8995-477f-a4d1-b57829cbc720",
+    "custodian_id": "",
+    "trustee_id": "4b7591c9-013f-4609-82a0-393f3aeedf3f",
+    "rate": "9",
+    "total_amount": "500000",
+    "buy_min_amount": "100",
+    "step_amount": "100",
+    "interest_start_time": "2018-10-18",
+    "interest_end_time": "2019-10-18",
+    "loan_day": "365",
+    "interest_advance_time": "2019-10-18",
+    "loan_day_advance": "0",
+    "buy_user_limit": "10",
+    "transfer_allow": "Y",
+    "transfer_lock_day": "0",
+    "interest_way": "1",
+    "repayment": "E3",
+    "contract_tpl_ids": "15",
+    "raise_proof_id": "15",
+    "endpoint_status": "all",
+    "channel_flag": "financial",
+    "display_order": "10000",
+    "inherit_flag": "Y",
+    "use_gift": "Y",
+    "interest_discount": "N",
+    "bottom_amount": "100",
+    "buy_max_times": "0",
+    "buy_max_day_total": "0",
+    "buy_max_total": "0",
+    "buy_max_amount": "0",
+    "record_service_fee": "0",
+    "register_service_fee": "0",
+    "trusteeship_service_fee": "0",
+    "transfer_service_fee": "0",
+    "cashing_service_fee": "0",
+    "other_service_fee": "0",
+    "buy_start_time": "2018-09-03 00:00",
+    "buy_end_time": "2018-12-05 00:00",
+    "raise_full_stop": "Y",
+    "raising_flag": "Y",
+    "raise_min_amount": "0"
+}

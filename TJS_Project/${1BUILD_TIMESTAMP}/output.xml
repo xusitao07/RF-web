@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generated="20181024 16:56:55.168" generator="Robot 2.8.7 (Python 2.7.11rc1 on win32)">
+<suite id="s1" name="Test &amp; CommonlyUsed">
+<suite source="D:\RF\TJS_Project\Test.txt" id="s1-s1" name="Test">
+<test id="s1-s1-t1" name="调试">
+<kw type="kw" name="${key} = BuiltIn.Set Variable">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>12.0</arg>
+<arg>2aa22</arg>
+<arg>22222</arg>
+</arguments>
+<msg timestamp="20181024 16:56:55.480" level="INFO">${key} = ["12.0", "2aa22", "22222"]</msg>
+<status status="PASS" endtime="20181024 16:56:55.480" starttime="20181024 16:56:55.480"></status>
+</kw>
+<kw type="for" name="${i} IN RANGE [ 3 ]">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="foritem" name="${i} = 0">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="kw" name="${a} = Httpself.Len">
+<doc></doc>
+<arguments>
+<arg>${key[${i}]}</arg>
+</arguments>
+<msg timestamp="20181024 16:56:55.481" level="INFO">${a} = 4</msg>
+<status status="PASS" endtime="20181024 16:56:55.481" starttime="20181024 16:56:55.481"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${a}</arg>
+</arguments>
+<msg timestamp="20181024 16:56:55.481" level="INFO">4</msg>
+<status status="PASS" endtime="20181024 16:56:55.481" starttime="20181024 16:56:55.481"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:56:55.481" starttime="20181024 16:56:55.481"></status>
+</kw>
+<kw type="foritem" name="${i} = 1">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="kw" name="${a} = Httpself.Len">
+<doc></doc>
+<arguments>
+<arg>${key[${i}]}</arg>
+</arguments>
+<msg timestamp="20181024 16:56:55.482" level="INFO">${a} = 5</msg>
+<status status="PASS" endtime="20181024 16:56:55.482" starttime="20181024 16:56:55.482"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${a}</arg>
+</arguments>
+<msg timestamp="20181024 16:56:55.482" level="INFO">5</msg>
+<status status="PASS" endtime="20181024 16:56:55.482" starttime="20181024 16:56:55.482"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:56:55.482" starttime="20181024 16:56:55.481"></status>
+</kw>
+<kw type="foritem" name="${i} = 2">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="kw" name="${a} = Httpself.Len">
+<doc></doc>
+<arguments>
+<arg>${key[${i}]}</arg>
+</arguments>
+<msg timestamp="20181024 16:56:55.483" level="INFO">${a} = 5</msg>
+<status status="PASS" endtime="20181024 16:56:55.482" starttime="20181024 16:56:55.482"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${a}</arg>
+</arguments>
+<msg timestamp="20181024 16:56:55.483" level="INFO">5</msg>
+<status status="PASS" endtime="20181024 16:56:55.483" starttime="20181024 16:56:55.483"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:56:55.483" starttime="20181024 16:56:55.482"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:56:55.483" starttime="20181024 16:56:55.481"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${key[0]}</arg>
+</arguments>
+<msg timestamp="20181024 16:56:55.483" level="INFO">12.0</msg>
+<status status="PASS" endtime="20181024 16:56:55.483" starttime="20181024 16:56:55.483"></status>
+</kw>
+<doc></doc>
+<tags>
+</tags>
+<status status="PASS" endtime="20181024 16:56:55.483" critical="yes" starttime="20181024 16:56:55.479"></status>
+</test>
+<doc></doc>
+<metadata>
+</metadata>
+<status status="PASS" endtime="20181024 16:56:55.484" starttime="20181024 16:56:55.190"></status>
+</suite>
+<suite source="D:\RF\TJS_Project\CommonlyUsed.txt" id="s1-s2" name="CommonlyUsed">
+<test id="s1-s2-t1" name="正常登录同金社">
+<kw type="kw" name="打开浏览器并输入url">
+<doc>${url}   输入URL</doc>
+<arguments>
+<arg>http://www.tjs.com/</arg>
+<arg>ff</arg>
+</arguments>
+<kw type="kw" name="Selenium2Library.Open Browser">
+<doc>Opens a new browser instance to given URL.</doc>
+<arguments>
+<arg>${url}</arg>
+<arg>${browser}</arg>
+</arguments>
+<msg timestamp="20181024 16:56:55.497" level="INFO">Opening browser 'ff' to base url 'http://www.tjs.com/'</msg>
+<status status="PASS" endtime="20181024 16:56:59.269" starttime="20181024 16:56:55.497"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:56:59.269" starttime="20181024 16:56:55.497"></status>
+</kw>
+<kw type="kw" name="窗口最大化">
+<doc>放大窗口</doc>
+<arguments>
+</arguments>
+<kw type="kw" name="Selenium2Library.Maximize Browser Window">
+<doc>Maximizes current browser window.</doc>
+<arguments>
+</arguments>
+<status status="PASS" endtime="20181024 16:56:59.488" starttime="20181024 16:56:59.269"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:56:59.488" starttime="20181024 16:56:59.269"></status>
+</kw>
+<kw type="kw" name="Selenium2Library.Set Selenium Implicit Wait">
+<doc>Sets Selenium 2's default implicit wait in seconds and</doc>
+<arguments>
+<arg>2</arg>
+</arguments>
+<status status="PASS" endtime="20181024 16:56:59.520" starttime="20181024 16:56:59.488"></status>
+</kw>
+<kw type="kw" name="登录">
+<doc>${username}   用户名</doc>
+<arguments>
+<arg>18770027573</arg>
+<arg>aa111111</arg>
+</arguments>
+<kw type="kw" name="Selenium2Library.Input Text">
+<doc>Types the given `text` into text field identified by `locator`.</doc>
+<arguments>
+<arg>id=aphone</arg>
+<arg>${username}</arg>
+</arguments>
+<msg timestamp="20181024 16:56:59.522" level="INFO">Typing text '18770027573' into text field 'id=aphone'</msg>
+<status status="PASS" endtime="20181024 16:56:59.609" starttime="20181024 16:56:59.522"></status>
+</kw>
+<kw type="kw" name="Selenium2Library.Input Text">
+<doc>Types the given `text` into text field identified by `locator`.</doc>
+<arguments>
+<arg>id=apwd</arg>
+<arg>${password}</arg>
+</arguments>
+<msg timestamp="20181024 16:56:59.609" level="INFO">Typing text 'aa111111' into text field 'id=apwd'</msg>
+<status status="PASS" endtime="20181024 16:56:59.658" starttime="20181024 16:56:59.609"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:56:59.659" starttime="20181024 16:56:59.522"></status>
+</kw>
+<kw type="kw" name="点击登录按钮">
+<doc></doc>
+<arguments>
+<arg>name=abtn</arg>
+</arguments>
+<kw type="kw" name="Selenium2Library.Click Button">
+<doc>Clicks a button identified by `locator`.</doc>
+<arguments>
+<arg>${element}</arg>
+</arguments>
+<msg timestamp="20181024 16:56:59.659" level="INFO">Clicking button 'name=abtn'.</msg>
+<status status="PASS" endtime="20181024 16:56:59.753" starttime="20181024 16:56:59.659"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:56:59.753" starttime="20181024 16:56:59.659"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Sleep">
+<doc>Pauses the test executed for the given time.</doc>
+<arguments>
+<arg>2</arg>
+</arguments>
+<msg timestamp="20181024 16:57:01.754" level="INFO">Slept 2 seconds</msg>
+<status status="PASS" endtime="20181024 16:57:01.754" starttime="20181024 16:56:59.753"></status>
+</kw>
+<kw type="kw" name="获取元素文本并做断言校验">
+<doc></doc>
+<arguments>
+<arg>Xpath=html/body/div[1]/div[2]/div/a[1]</arg>
+<arg>首页</arg>
+</arguments>
+<kw type="kw" name="${text} = Selenium2Library.Get Text">
+<doc>Returns the text value of element identified by `locator`.</doc>
+<arguments>
+<arg>${element}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:01.772" level="INFO">${text} = 首页</msg>
+<status status="PASS" endtime="20181024 16:57:01.772" starttime="20181024 16:57:01.754"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Should Contain">
+<doc>Fails if `item1` does not contain `item2` one or more times.</doc>
+<arguments>
+<arg>${text}</arg>
+<arg>${expected}</arg>
+</arguments>
+<status status="PASS" endtime="20181024 16:57:01.773" starttime="20181024 16:57:01.772"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:01.773" starttime="20181024 16:57:01.754"></status>
+</kw>
+<kw type="kw" name="关闭浏览器">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="kw" name="Selenium2Library.Click Element">
+<doc>Click element identified by `locator`.</doc>
+<arguments>
+<arg>xpath=html/body/div[1]/div[1]/div/div[2]/a[3]</arg>
+</arguments>
+<msg timestamp="20181024 16:57:01.773" level="INFO">Clicking element 'xpath=html/body/div[1]/div[1]/div/div[2]/a[3]'.</msg>
+<status status="PASS" endtime="20181024 16:57:02.131" starttime="20181024 16:57:01.773"></status>
+</kw>
+<kw type="kw" name="Selenium2Library.Close Browser">
+<doc>Closes the current browser.</doc>
+<arguments>
+</arguments>
+<status status="PASS" endtime="20181024 16:57:02.271" starttime="20181024 16:57:02.131"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:02.272" starttime="20181024 16:57:01.773"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Sleep">
+<doc>Pauses the test executed for the given time.</doc>
+<arguments>
+<arg>8</arg>
+</arguments>
+<msg timestamp="20181024 16:57:10.272" level="INFO">Slept 8 seconds</msg>
+<status status="PASS" endtime="20181024 16:57:10.272" starttime="20181024 16:57:02.272"></status>
+</kw>
+<doc></doc>
+<tags>
+</tags>
+<status status="PASS" endtime="20181024 16:57:10.272" critical="yes" starttime="20181024 16:56:55.495"></status>
+</test>
+<test id="s1-s2-t2" name="密码异常登入">
+<kw type="kw" name="BuiltIn.Import Variables">
+<doc>Imports a variable file with the given path and optional arguments.</doc>
+<arguments>
+<arg>D:\\RF\\TJS_Project\\selenium_diy.py</arg>
+</arguments>
+<status status="PASS" endtime="20181024 16:57:10.274" starttime="20181024 16:57:10.273"></status>
+</kw>
+<kw type="kw" name="打开浏览器并输入url">
+<doc>${url}   输入URL</doc>
+<arguments>
+<arg>${key["url"]}</arg>
+<arg>${key["browser"]}</arg>
+</arguments>
+<kw type="kw" name="Selenium2Library.Open Browser">
+<doc>Opens a new browser instance to given URL.</doc>
+<arguments>
+<arg>${url}</arg>
+<arg>${browser}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:10.276" level="INFO">Opening browser 'ff' to base url 'http://www.tjs.com/'</msg>
+<status status="PASS" endtime="20181024 16:57:14.062" starttime="20181024 16:57:10.276"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:14.062" starttime="20181024 16:57:10.275"></status>
+</kw>
+<kw type="kw" name="窗口最大化">
+<doc>放大窗口</doc>
+<arguments>
+</arguments>
+<kw type="kw" name="Selenium2Library.Maximize Browser Window">
+<doc>Maximizes current browser window.</doc>
+<arguments>
+</arguments>
+<status status="PASS" endtime="20181024 16:57:14.293" starttime="20181024 16:57:14.063"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:14.293" starttime="20181024 16:57:14.062"></status>
+</kw>
+<kw type="kw" name="Selenium2Library.Set Selenium Implicit Wait">
+<doc>Sets Selenium 2's default implicit wait in seconds and</doc>
+<arguments>
+<arg>2</arg>
+</arguments>
+<status status="PASS" endtime="20181024 16:57:14.301" starttime="20181024 16:57:14.294"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Comment">
+<doc>Displays the given messages in the log file as keyword arguments.</doc>
+<arguments>
+<arg>密码输入异常循环验证</arg>
+</arguments>
+<status status="PASS" endtime="20181024 16:57:14.301" starttime="20181024 16:57:14.301"></status>
+</kw>
+<kw type="kw" name="@{keyall} = BuiltIn.Set Variable">
+<doc>Returns the given values which can then be assigned to a variables.</doc>
+<arguments>
+<arg>${key["password1"]}</arg>
+<arg>${key["password1"]}</arg>
+<arg>${key["password3"]}</arg>
+<arg>${key["password4"]}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:14.302" level="INFO">@{keyall} = [ aa11111 | aa11111 |  | aa111111111 ]</msg>
+<status status="PASS" endtime="20181024 16:57:14.302" starttime="20181024 16:57:14.301"></status>
+</kw>
+<kw type="for" name="${i} IN [ @{keyall} ]">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="foritem" name="${i} = aa11111">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="kw" name="BuiltIn.Log">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${i}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:14.302" level="INFO">aa11111</msg>
+<status status="PASS" endtime="20181024 16:57:14.302" starttime="20181024 16:57:14.302"></status>
+</kw>
+<kw type="kw" name="登录">
+<doc>${username}   用户名</doc>
+<arguments>
+<arg>${key["username"]}</arg>
+<arg>${i}</arg>
+</arguments>
+<kw type="kw" name="Selenium2Library.Input Text">
+<doc>Types the given `text` into text field identified by `locator`.</doc>
+<arguments>
+<arg>id=aphone</arg>
+<arg>${username}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:14.304" level="INFO">Typing text '18770053344' into text field 'id=aphone'</msg>
+<status status="PASS" endtime="20181024 16:57:14.394" starttime="20181024 16:57:14.304"></status>
+</kw>
+<kw type="kw" name="Selenium2Library.Input Text">
+<doc>Types the given `text` into text field identified by `locator`.</doc>
+<arguments>
+<arg>id=apwd</arg>
+<arg>${password}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:14.395" level="INFO">Typing text 'aa11111' into text field 'id=apwd'</msg>
+<status status="PASS" endtime="20181024 16:57:14.450" starttime="20181024 16:57:14.394"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:14.451" starttime="20181024 16:57:14.303"></status>
+</kw>
+<kw type="kw" name="点击登录按钮">
+<doc></doc>
+<arguments>
+<arg>${key["element1"]}</arg>
+</arguments>
+<kw type="kw" name="Selenium2Library.Click Button">
+<doc>Clicks a button identified by `locator`.</doc>
+<arguments>
+<arg>${element}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:14.451" level="INFO">Clicking button 'name=abtn'.</msg>
+<status status="PASS" endtime="20181024 16:57:14.557" starttime="20181024 16:57:14.451"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:14.557" starttime="20181024 16:57:14.451"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Sleep">
+<doc>Pauses the test executed for the given time.</doc>
+<arguments>
+<arg>2</arg>
+</arguments>
+<msg timestamp="20181024 16:57:16.557" level="INFO">Slept 2 seconds</msg>
+<status status="PASS" endtime="20181024 16:57:16.557" starttime="20181024 16:57:14.557"></status>
+</kw>
+<kw type="kw" name="异常情况获取元素并做断言校验">
+<doc></doc>
+<arguments>
+<arg>${key["element2"]}</arg>
+<arg>${key["expected"]}</arg>
+</arguments>
+<kw type="kw" name="${text} = Selenium2Library.Get Text">
+<doc>Returns the text value of element identified by `locator`.</doc>
+<arguments>
+<arg>${element}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:16.575" level="INFO">${text} = 快速注册</msg>
+<status status="PASS" endtime="20181024 16:57:16.575" starttime="20181024 16:57:16.558"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Should Not Contain">
+<doc>Fails if `item1` contains `item2` one or more times.</doc>
+<arguments>
+<arg>${text}</arg>
+<arg>${expected}</arg>
+</arguments>
+<status status="PASS" endtime="20181024 16:57:16.576" starttime="20181024 16:57:16.576"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${text}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:16.576" level="INFO">快速注册</msg>
+<status status="PASS" endtime="20181024 16:57:16.576" starttime="20181024 16:57:16.576"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:16.576" starttime="20181024 16:57:16.557"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Sleep">
+<doc>Pauses the test executed for the given time.</doc>
+<arguments>
+<arg>3</arg>
+</arguments>
+<msg timestamp="20181024 16:57:19.576" level="INFO">Slept 3 seconds</msg>
+<status status="PASS" endtime="20181024 16:57:19.576" starttime="20181024 16:57:16.576"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:19.576" starttime="20181024 16:57:14.302"></status>
+</kw>
+<kw type="foritem" name="${i} = aa11111">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="kw" name="BuiltIn.Log">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${i}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:19.576" level="INFO">aa11111</msg>
+<status status="PASS" endtime="20181024 16:57:19.576" starttime="20181024 16:57:19.576"></status>
+</kw>
+<kw type="kw" name="登录">
+<doc>${username}   用户名</doc>
+<arguments>
+<arg>${key["username"]}</arg>
+<arg>${i}</arg>
+</arguments>
+<kw type="kw" name="Selenium2Library.Input Text">
+<doc>Types the given `text` into text field identified by `locator`.</doc>
+<arguments>
+<arg>id=aphone</arg>
+<arg>${username}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:19.578" level="INFO">Typing text '18770053344' into text field 'id=aphone'</msg>
+<status status="PASS" endtime="20181024 16:57:19.623" starttime="20181024 16:57:19.578"></status>
+</kw>
+<kw type="kw" name="Selenium2Library.Input Text">
+<doc>Types the given `text` into text field identified by `locator`.</doc>
+<arguments>
+<arg>id=apwd</arg>
+<arg>${password}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:19.623" level="INFO">Typing text 'aa11111' into text field 'id=apwd'</msg>
+<status status="PASS" endtime="20181024 16:57:19.669" starttime="20181024 16:57:19.623"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:19.670" starttime="20181024 16:57:19.577"></status>
+</kw>
+<kw type="kw" name="点击登录按钮">
+<doc></doc>
+<arguments>
+<arg>${key["element1"]}</arg>
+</arguments>
+<kw type="kw" name="Selenium2Library.Click Button">
+<doc>Clicks a button identified by `locator`.</doc>
+<arguments>
+<arg>${element}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:19.670" level="INFO">Clicking button 'name=abtn'.</msg>
+<status status="PASS" endtime="20181024 16:57:19.763" starttime="20181024 16:57:19.670"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:19.763" starttime="20181024 16:57:19.670"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Sleep">
+<doc>Pauses the test executed for the given time.</doc>
+<arguments>
+<arg>2</arg>
+</arguments>
+<msg timestamp="20181024 16:57:21.764" level="INFO">Slept 2 seconds</msg>
+<status status="PASS" endtime="20181024 16:57:21.764" starttime="20181024 16:57:19.763"></status>
+</kw>
+<kw type="kw" name="异常情况获取元素并做断言校验">
+<doc></doc>
+<arguments>
+<arg>${key["element2"]}</arg>
+<arg>${key["expected"]}</arg>
+</arguments>
+<kw type="kw" name="${text} = Selenium2Library.Get Text">
+<doc>Returns the text value of element identified by `locator`.</doc>
+<arguments>
+<arg>${element}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:21.786" level="INFO">${text} = 快速注册</msg>
+<status status="PASS" endtime="20181024 16:57:21.786" starttime="20181024 16:57:21.765"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Should Not Contain">
+<doc>Fails if `item1` contains `item2` one or more times.</doc>
+<arguments>
+<arg>${text}</arg>
+<arg>${expected}</arg>
+</arguments>
+<status status="PASS" endtime="20181024 16:57:21.787" starttime="20181024 16:57:21.786"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Log">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${text}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:21.787" level="INFO">快速注册</msg>
+<status status="PASS" endtime="20181024 16:57:21.787" starttime="20181024 16:57:21.787"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:21.787" starttime="20181024 16:57:21.764"></status>
+</kw>
+<kw type="kw" name="BuiltIn.Sleep">
+<doc>Pauses the test executed for the given time.</doc>
+<arguments>
+<arg>3</arg>
+</arguments>
+<msg timestamp="20181024 16:57:24.787" level="INFO">Slept 3 seconds</msg>
+<status status="PASS" endtime="20181024 16:57:24.787" starttime="20181024 16:57:21.787"></status>
+</kw>
+<status status="PASS" endtime="20181024 16:57:24.787" starttime="20181024 16:57:19.576"></status>
+</kw>
+<kw type="foritem" name="${i} = ">
+<doc></doc>
+<arguments>
+</arguments>
+<kw type="kw" name="BuiltIn.Log">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>${i}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:24.787" level="INFO"></msg>
+<status status="PASS" endtime="20181024 16:57:24.787" starttime="20181024 16:57:24.787"></status>
+</kw>
+<kw type="kw" name="登录">
+<doc>${username}   用户名</doc>
+<arguments>
+<arg>${key["username"]}</arg>
+<arg>${i}</arg>
+</arguments>
+<kw type="kw" name="Selenium2Library.Input Text">
+<doc>Types the given `text` into text field identified by `locator`.</doc>
+<arguments>
+<arg>id=aphone</arg>
+<arg>${username}</arg>
+</arguments>
+<msg timestamp="20181024 16:57:24.789" level="INFO">Typing text '18770053344' into text field 'id=aphone'</msg>
